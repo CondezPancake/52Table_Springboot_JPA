@@ -107,6 +107,36 @@
       "nullableColumns": ["phone"],
       "uuidColumns": ["id", "contact_id"],
       "textColumns": ["notes"]
+    },
+    {
+      "table": "email_contacts", "entity": "EmailContact", "package": "emailcontact", "endpoint": "/api/email-contacts", "hasTimestamps": true,
+      "expectedColumns": ["id", "contact_id", "email", "notes", "created_at", "updated_at"],
+      "lengths": {"id": 36, "contact_id": 36, "email": 150},
+      "uuidColumns": ["id", "contact_id"],
+      "textColumns": ["notes"],
+      "uniqueConstraints": [{"name": "uk_email_contacts_email", "column": "email"}]
+    },
+    {
+      "table": "patient_contacts", "entity": "PatientContact", "package": "patientcontact", "endpoint": "/api/patient-contacts", "hasTimestamps": false,
+      "expectedColumns": ["id", "contact_id", "patient_id", "is_primary_contact", "is_emergency_contact", "relationship_type_id"],
+      "lengths": {"id": 36, "contact_id": 36, "patient_id": 36, "relationship_type_id": 36},
+      "uuidColumns": ["id", "contact_id", "patient_id", "relationship_type_id"]
+    },
+    {
+      "table": "patient_allergies", "entity": "PatientAllergy", "package": "patientallergy", "endpoint": "/api/patient-allergies", "hasTimestamps": true,
+      "expectedColumns": ["id", "patient_id", "substance", "reaction", "severity", "active", "recorded_at", "recorded_by", "created_at", "updated_at"],
+      "lengths": {"id": 36, "patient_id": 36, "substance": 200, "severity": 20, "recorded_by": 36},
+      "nullableColumns": ["reaction"],
+      "uuidColumns": ["id", "patient_id", "recorded_by"],
+      "textColumns": ["reaction"],
+      "javaTypes": {"recorded_at": "LocalDateTime"}
+    },
+    {
+      "table": "professional_studies", "entity": "ProfessionalStudy", "package": "professionalstudy", "endpoint": "/api/professional-studies", "hasTimestamps": true,
+      "expectedColumns": ["id", "study_id", "professional_id", "title", "university", "is_valid", "resolution_number", "country_id", "created_at", "updated_at"],
+      "lengths": {"id": 36, "study_id": 36, "professional_id": 36, "title": 100, "university": 100, "resolution_number": 60, "country_id": 36},
+      "nullableColumns": ["resolution_number"],
+      "uuidColumns": ["id", "study_id", "professional_id", "country_id"]
     }
   ],
   "requiredResources": [

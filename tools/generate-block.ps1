@@ -144,6 +144,51 @@ $Contexts = @(
             (Field 'phone' 'String' 'phone' 30 'null' $null $null $true),
             (Field 'notes' 'String' 'notes' 0 '"Call after 5 PM"' $null $null $false 'text')
         )
+    },
+    [pscustomobject]@{
+        Entity = 'EmailContact'; Package = 'emailcontact'; Table = 'email_contacts'; Endpoint = 'email-contacts'; HasTimestamps = $true
+        UniqueConstraints = @(
+            [pscustomobject]@{ Name = 'uk_email_contacts_email'; Column = 'email' }
+        )
+        Fields = @(
+            (Field 'contactId' 'ContactId' 'contact_id' 36 'ContactId.generate()' 'contact' 'Contact'),
+            (Field 'email' 'String' 'email' 150 '"emergency@example.com"'),
+            (Field 'notes' 'String' 'notes' 0 '"Preferred email"' $null $null $false 'text')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'PatientContact'; Package = 'patientcontact'; Table = 'patient_contacts'; Endpoint = 'patient-contacts'; HasTimestamps = $false
+        Fields = @(
+            (Field 'contactId' 'ContactId' 'contact_id' 36 'ContactId.generate()' 'contact' 'Contact'),
+            (Field 'patientId' 'PatientId' 'patient_id' 36 'PatientId.generate()' 'patient' 'Patient'),
+            (Field 'primaryContact' 'boolean' 'is_primary_contact' 0 'true'),
+            (Field 'emergencyContact' 'boolean' 'is_emergency_contact' 0 'false'),
+            (Field 'relationshipTypeId' 'RelationshipTypeId' 'relationship_type_id' 36 'RelationshipTypeId.generate()' 'relationshiptype' 'RelationshipType')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'PatientAllergy'; Package = 'patientallergy'; Table = 'patient_allergies'; Endpoint = 'patient-allergies'; HasTimestamps = $true
+        Fields = @(
+            (Field 'patientId' 'PatientId' 'patient_id' 36 'PatientId.generate()' 'patient' 'Patient'),
+            (Field 'substance' 'String' 'substance' 200 '"Penicillin"'),
+            (Field 'reaction' 'String' 'reaction' 0 'null' $null $null $true 'text'),
+            (Field 'severity' 'String' 'severity' 20 '"HIGH"'),
+            (Field 'active' 'boolean' 'active' 0 'true'),
+            (Field 'recordedAt' 'LocalDateTime' 'recorded_at' 0 'java.time.LocalDateTime.of(2026, 1, 10, 8, 0)'),
+            (Field 'recordedBy' 'ProfessionalId' 'recorded_by' 36 'ProfessionalId.generate()' 'professional' 'Professional')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'ProfessionalStudy'; Package = 'professionalstudy'; Table = 'professional_studies'; Endpoint = 'professional-studies'; HasTimestamps = $true
+        Fields = @(
+            (Field 'studyId' 'StudyId' 'study_id' 36 'StudyId.generate()' 'study' 'Study'),
+            (Field 'professionalId' 'ProfessionalId' 'professional_id' 36 'ProfessionalId.generate()' 'professional' 'Professional'),
+            (Field 'title' 'String' 'title' 100 '"Clinical Psychology"'),
+            (Field 'university' 'String' 'university' 100 '"National University"'),
+            (Field 'valid' 'boolean' 'is_valid' 0 'true'),
+            (Field 'resolutionNumber' 'String' 'resolution_number' 60 'null' $null $null $true),
+            (Field 'countryId' 'CountryId' 'country_id' 36 'CountryId.generate()' 'country' 'Country')
+        )
     }
 )
 
@@ -188,8 +233,11 @@ function Has-Timestamps($context) {
 function Is-Nullable($field) {
     [bool]$field.Nullable
 }
-function Type-Imports($context) {
-    if ($context.Fields.Type -contains 'LocalDate') { 'import java.time.LocalDate;' } else { '' }
+function Type-Imports($context, [string[]]$exclude = @()) {
+    $imports = @()
+    if ($context.Fields.Type -contains 'LocalDate' -and 'LocalDate' -notin $exclude) { $imports += 'import java.time.LocalDate;' }
+    if ($context.Fields.Type -contains 'LocalDateTime' -and 'LocalDateTime' -notin $exclude) { $imports += 'import java.time.LocalDateTime;' }
+    $imports -join "`n"
 }
 function Unique-Constraints($context) {
     if ($context.UniqueConstraints) { return @($context.UniqueConstraints) }
@@ -201,7 +249,7 @@ function Unique-Constraints($context) {
 
 function Generate-Domain($context) {
     $entity = $context.Entity; $pkg = $context.Package; $refs = Ref-Imports $context
-    $typeImports = Type-Imports $context
+    $typeImports = Type-Imports $context @('LocalDateTime')
     $codeField = Code-Field $context
     $existsByCode = if ($null -ne $codeField) { '    boolean existsByCode(String code);' } else { '' }
     Write-Generated "domain/src/main/java/springboot/domain/$pkg/model/valueobject/${entity}Id.java" @"
@@ -429,7 +477,7 @@ $checks
     if (Has-Timestamps $context) { $responseFields += @('LocalDateTime createdAt', 'LocalDateTime updatedAt') }
     $responseFieldsText = $responseFields -join ",`n        "
     $responseTimeImport = if (Has-Timestamps $context) { 'import java.time.LocalDateTime;' } else { '' }
-    $responseTypeImports = Type-Imports $context
+    $responseTypeImports = if (Has-Timestamps $context) { Type-Imports $context @('LocalDateTime') } else { Type-Imports $context }
     Write-Generated "application/src/main/java/springboot/application/$pkg/dto/${entity}Response.java" @"
 package springboot.application.$pkg.dto;
 
@@ -699,6 +747,7 @@ public class ${entity}Controller {
     $ctorAssign = $ctorAssignments -join "`n"
     $accessors = ($context.Fields | ForEach-Object { $pt = Persistence-Type $_; $cap = Cap $_.Name; $getter = Getter $_; "    public $pt $getter() {`n        return $($_.Name);`n    }`n`n    public void set$cap($pt $($_.Name)) {`n        this.$($_.Name) = $($_.Name);`n    }" }) -join "`n`n"
     $timeImport = if (Has-Timestamps $context) { 'import java.time.LocalDateTime;' } else { '' }
+    $entityTypeImports = if (Has-Timestamps $context) { Type-Imports $context @('LocalDateTime') } else { Type-Imports $context }
     $timestampColumns = if (Has-Timestamps $context) { @"
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -724,7 +773,7 @@ public class ${entity}Controller {
 package springboot.infrastructure.$pkg.adapters.out.persistence.entity;
 
 $timeImport
-$typeImports
+$entityTypeImports
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
