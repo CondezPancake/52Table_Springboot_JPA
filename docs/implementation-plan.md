@@ -88,6 +88,8 @@ The ordering is dependency-driven, so migration numbers appear out of numerical 
 - `PatientContact` has no technical timestamps. `PatientAllergy.recordedAt` is modeled as a required `LocalDateTime` field in addition to its technical `createdAt`/`updatedAt` values.
 - V17, V19, V20, V21, and V23 are timestamped catalogs with real `code` columns, so each preserves the professor's `existsByCode` contract. Their named code/name UNIQUE constraints and SQL lengths are mapped explicitly.
 - `ClinicalRecordStatus` omits `active` because V17 does not define it. V19–V21 retain their required boolean `active`; V23 additionally maps required integer `severity` as `int` internally and validated `Integer` at the REST boundary.
+- V27, V29, V31–V34 are timestamped catalogs with real `code` columns, so all six preserve `existsByCode`. Only the UNIQUE constraints actually declared in SQL are mapped: code plus name for treatment/treatment-goal statuses, and code only for the other four.
+- V32/V33 required descriptions use explicit MySQL `TEXT`; V34 diagnostic-system version remains `VARCHAR(20)`. No artificial length, optionality, or name uniqueness is added.
 - JPA UUIDs use Hibernate's character JDBC type plus explicit `CHAR(36)` column definitions; the template's unqualified UUID mapping is not compatible with the supplied MySQL DDL.
 - Request validation enforces SQL nullability and maximum lengths. It does not invent `NOT BLANK` semantics where SQL only declares `NOT NULL`.
 - Java version declarations are removed from child POMs and centralized at Java 21. Surefire is pinned because the BOM alone does not provide plugin management for the template's JUnit 5 tests.

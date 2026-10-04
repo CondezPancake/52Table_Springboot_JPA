@@ -249,6 +249,77 @@ $Contexts = @(
             (Field 'active' 'boolean' 'active' 0 'true'),
             (Field 'severity' 'int' 'severity' 0 '3')
         )
+    },
+    [pscustomobject]@{
+        Entity = 'TreatmentStatus'; Package = 'treatmentstatus'; Table = 'treatment_statuses'; Endpoint = 'treatment-statuses'; HasTimestamps = $true
+        UniqueConstraints = @(
+            [pscustomobject]@{ Name = 'uk_treatment_statuses_code'; Column = 'code' },
+            [pscustomobject]@{ Name = 'uk_treatment_statuses_name'; Column = 'name' }
+        )
+        Fields = @(
+            (Field 'code' 'String' 'code' 20 '"ACTIVE"'),
+            (Field 'name' 'String' 'name' 50 '"Active"'),
+            (Field 'active' 'boolean' 'active' 0 'true')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'TreatmentGoalStatus'; Package = 'treatmentgoalstatus'; Table = 'treatment_goal_statuses'; Endpoint = 'treatment-goal-statuses'; HasTimestamps = $true
+        UniqueConstraints = @(
+            [pscustomobject]@{ Name = 'uk_treatment_goal_statuses_code'; Column = 'code' },
+            [pscustomobject]@{ Name = 'uk_treatment_goal_statuses_name'; Column = 'name' }
+        )
+        Fields = @(
+            (Field 'code' 'String' 'code' 20 '"IN_PROGRESS"'),
+            (Field 'name' 'String' 'name' 50 '"In progress"'),
+            (Field 'active' 'boolean' 'active' 0 'true')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'MedicationRoute'; Package = 'medicationroute'; Table = 'medication_routes'; Endpoint = 'medication-routes'; HasTimestamps = $true
+        UniqueConstraints = @(
+            [pscustomobject]@{ Name = 'uk_medication_routes_code'; Column = 'code' }
+        )
+        Fields = @(
+            (Field 'code' 'String' 'code' 20 '"ORAL"'),
+            (Field 'name' 'String' 'name' 50 '"Oral"'),
+            (Field 'active' 'boolean' 'active' 0 'true')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'AssessmentType'; Package = 'assessmenttype'; Table = 'assessment_types'; Endpoint = 'assessment-types'; HasTimestamps = $true
+        UniqueConstraints = @(
+            [pscustomobject]@{ Name = 'uk_assessment_types_code'; Column = 'code' }
+        )
+        Fields = @(
+            (Field 'code' 'String' 'code' 20 '"INITIAL"'),
+            (Field 'name' 'String' 'name' 50 '"Initial assessment"'),
+            (Field 'active' 'boolean' 'active' 0 'true'),
+            (Field 'description' 'String' 'description' 0 '"Initial clinical assessment"' $null $null $false 'text')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'ConsentType'; Package = 'consenttype'; Table = 'consent_types'; Endpoint = 'consent-types'; HasTimestamps = $true
+        UniqueConstraints = @(
+            [pscustomobject]@{ Name = 'uk_consent_types_code'; Column = 'code' }
+        )
+        Fields = @(
+            (Field 'code' 'String' 'code' 20 '"TREATMENT"'),
+            (Field 'name' 'String' 'name' 50 '"Treatment consent"'),
+            (Field 'active' 'boolean' 'active' 0 'true'),
+            (Field 'description' 'String' 'description' 0 '"Consent for treatment"' $null $null $false 'text')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'DiagnosticSystem'; Package = 'diagnosticsystem'; Table = 'diagnostic_systems'; Endpoint = 'diagnostic-systems'; HasTimestamps = $true
+        UniqueConstraints = @(
+            [pscustomobject]@{ Name = 'uk_diagnostic_systems_code'; Column = 'code' }
+        )
+        Fields = @(
+            (Field 'code' 'String' 'code' 20 '"DSM"'),
+            (Field 'name' 'String' 'name' 50 '"Diagnostic and Statistical Manual"'),
+            (Field 'active' 'boolean' 'active' 0 'true'),
+            (Field 'version' 'String' 'version' 20 '"5-TR"')
+        )
     }
 )
 

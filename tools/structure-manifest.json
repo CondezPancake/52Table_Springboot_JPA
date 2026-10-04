@@ -188,6 +188,56 @@
         {"name": "uk_risk_levels_code", "column": "code"},
         {"name": "uk_risk_levels_name", "column": "name"}
       ]
+    },
+    {
+      "table": "treatment_statuses", "entity": "TreatmentStatus", "package": "treatmentstatus", "endpoint": "/api/treatment-statuses", "codeProperty": "code", "hasTimestamps": true,
+      "expectedColumns": ["id", "code", "name", "active", "created_at", "updated_at"],
+      "lengths": {"id": 36, "code": 20, "name": 50},
+      "uuidColumns": ["id"],
+      "uniqueConstraints": [
+        {"name": "uk_treatment_statuses_code", "column": "code"},
+        {"name": "uk_treatment_statuses_name", "column": "name"}
+      ]
+    },
+    {
+      "table": "treatment_goal_statuses", "entity": "TreatmentGoalStatus", "package": "treatmentgoalstatus", "endpoint": "/api/treatment-goal-statuses", "codeProperty": "code", "hasTimestamps": true,
+      "expectedColumns": ["id", "code", "name", "active", "created_at", "updated_at"],
+      "lengths": {"id": 36, "code": 20, "name": 50},
+      "uuidColumns": ["id"],
+      "uniqueConstraints": [
+        {"name": "uk_treatment_goal_statuses_code", "column": "code"},
+        {"name": "uk_treatment_goal_statuses_name", "column": "name"}
+      ]
+    },
+    {
+      "table": "medication_routes", "entity": "MedicationRoute", "package": "medicationroute", "endpoint": "/api/medication-routes", "codeProperty": "code", "hasTimestamps": true,
+      "expectedColumns": ["id", "code", "name", "active", "created_at", "updated_at"],
+      "lengths": {"id": 36, "code": 20, "name": 50},
+      "uuidColumns": ["id"],
+      "uniqueConstraints": [{"name": "uk_medication_routes_code", "column": "code"}]
+    },
+    {
+      "table": "assessment_types", "entity": "AssessmentType", "package": "assessmenttype", "endpoint": "/api/assessment-types", "codeProperty": "code", "hasTimestamps": true,
+      "expectedColumns": ["id", "code", "name", "active", "description", "created_at", "updated_at"],
+      "lengths": {"id": 36, "code": 20, "name": 50},
+      "uuidColumns": ["id"],
+      "textColumns": ["description"],
+      "uniqueConstraints": [{"name": "uk_assessment_types_code", "column": "code"}]
+    },
+    {
+      "table": "consent_types", "entity": "ConsentType", "package": "consenttype", "endpoint": "/api/consent-types", "codeProperty": "code", "hasTimestamps": true,
+      "expectedColumns": ["id", "code", "name", "active", "description", "created_at", "updated_at"],
+      "lengths": {"id": 36, "code": 20, "name": 50},
+      "uuidColumns": ["id"],
+      "textColumns": ["description"],
+      "uniqueConstraints": [{"name": "uk_consent_types_code", "column": "code"}]
+    },
+    {
+      "table": "diagnostic_systems", "entity": "DiagnosticSystem", "package": "diagnosticsystem", "endpoint": "/api/diagnostic-systems", "codeProperty": "code", "hasTimestamps": true,
+      "expectedColumns": ["id", "code", "name", "active", "version", "created_at", "updated_at"],
+      "lengths": {"id": 36, "code": 20, "name": 50, "version": 20},
+      "uuidColumns": ["id"],
+      "uniqueConstraints": [{"name": "uk_diagnostic_systems_code", "column": "code"}]
     }
   ],
   "requiredResources": [
