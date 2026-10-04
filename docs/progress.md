@@ -16,7 +16,7 @@ Last updated: 2026-10-04 (America/Bogota)
 | 8 | risk_assessments, clinical_notes, mental_status_exams, treatment_plans | Complete and verified |
 | 9 | treatment_goals, conversations_statuses, priorities, sender_types, message_types | Complete and verified |
 | 10 | chat_conversations, chat_participants, chat_messages | Complete and verified |
-| 11 | provider_models_ai, ai_models, chat_conversation_ai_settings, ai_runs_statuses | Pending |
+| 11 | provider_models_ai, ai_models, chat_conversation_ai_settings, ai_runs_statuses | Complete and verified |
 | 12 | chat_ai_runs, chat_ai_run_metrics, chat_ai_run_errors, escalations_statuses | Pending |
 | 13 | chat_escalations, chat_escalation_assignments, chat_escalation_status_history | Pending |
 
@@ -30,7 +30,7 @@ Last updated: 2026-10-04 (America/Bogota)
 - Renamed the only boot class to `springboot.infrastructure.DemoApplication`, updated the infrastructure POM and VS Code launcher, and retained root package scanning.
 - Added the template's Spring configuration metadata, with matching environment-backed queue-delay and CORS properties but no queue behavior.
 - Restored `existsByCode` for the initial three contexts using their real JPA properties, without altering the non-unique SQL constraints.
-- Added `tools/structure-manifest.json` and `tools/verify-structure.ps1`; after block 10 the verifier passes for 41 contexts, 1,071 Java files, exact declaration types/packages, 7 beans per context, layer boundaries, SQL columns, lengths, nullability, UUID/TEXT/DATE/JSON/timestamp mappings, and 52 migration versions.
+- Added `tools/structure-manifest.json` and `tools/verify-structure.ps1`; after block 11 the verifier passes for 45 contexts, 1,175 Java files, exact declaration types/packages, 7 beans per context, layer boundaries, SQL columns, lengths, precision/scale, nullability, UUID/TEXT/DATE/JSON/timestamp mappings, and 52 migration versions.
 - Maven wrapper 3.3.4 verified with `JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot`; Maven 3.9.16 runs on Java 21.0.12.1.
 - Copied all 52 original migrations once into infrastructure. Source/destination SHA-256 comparison reports 52 matches and zero mismatches; there is no template Country migration.
 - Implemented full Country-pattern contexts for `countries`, `state_regions`, and `city_municipalities`: 9 application files, 6 domain files, 8 infrastructure files, one common domain exception, and 2 equivalent tests per context.
@@ -81,15 +81,20 @@ Last updated: 2026-10-04 (America/Bogota)
 - `ChatParticipant.patientId` and `professionalId` remain independently optional and use null-safe REST/mapping conversions.
 - `ChatMessage.content` and `metadata` remain domain `String` values and map explicitly with Hibernate's JSON JDBC type and MySQL `json` column definition. `ChatMessage` has `createdAt` only and does not invent `updatedAt`.
 - Extended the generator and structural verifier with raw UUID fields and explicit JSON mapping checks while retaining selective generation and overwrite protection.
+- Implemented complete Country-pattern contexts for V42–V45: `ProviderModelAi`, `AiModel`, `ChatConversationAiSetting`, and `AiRunStatus`, each with 9 application files, 6 domain files, 8 infrastructure files, its domain common exception, and 2 equivalent test classes.
+- Verified block 11 against SQL: all FK values remain typed identifiers/`CHAR(36)` UUIDs, all lengths and required fields match, and every context preserves both technical timestamps.
+- `AiModel.inputTokenPrice` and `outputTokenPrice` use `BigDecimal`, explicit JPA precision 12/scale 8, and REST `@Digits(integer = 4, fraction = 8)`. Integer token limits remain primitive internally and validated wrappers at REST.
+- `ProviderModelAi.sitioWeb` is required `TEXT`; mixed-case SQL column `isActive` is preserved explicitly. No provider behavior, AI call, code lookup, or uniqueness was invented.
+- Extended the generator and verifier with decimal precision/scale and `BigDecimal` support.
 - Confirmed domain/application source contains no Spring, JPA, or Jakarta Validation imports. No legacy package, PostgreSQL setting, `create-drop`, TODO, or stub implementation remains in main source.
 - Confirmed the implementation plan has exactly 52 table mapping rows.
 
 ## Verification states
 
-- Compiled: yes. `mvnw.cmd clean verify` succeeded for the full four-project reactor with Maven 3.9.16 on JDK 21.0.12.1 and Java release 21.
-- Tests executed: yes. The block-10 clean verification ran 129 tests (47 domain and 82 application), with zero failures, errors, or skips.
+- Compiled: yes. `mvnw.cmd -o clean package -DskipTests` succeeded for the full four-project reactor with Maven 3.9.16 on JDK 21.0.12.1 and Java release 21.
+- Tests executed: yes, limited to the current block as requested. Twelve critical block-11 tests ran (4 domain registration-event tests and 8 application deletion tests), with zero failures, errors, or skips. Historical-context tests were not rerun.
 - Persistence verified: no. There is no `.env`, `DB_URL`, MySQL client, Docker command, or confirmed dedicated MySQL database in this environment. Flyway/Hibernate startup was intentionally not pointed at the default or an unknown shared database.
 
 ## Next action
 
-In the next requested implementation execution, begin block 11: `provider_models_ai`, `ai_models`, `chat_conversation_ai_settings`, and `ai_runs_statuses`. Extend the manifest and run the structural verifier before `clean verify`.
+In the next requested implementation execution, begin block 12: `chat_ai_runs`, `chat_ai_run_metrics`, `chat_ai_run_errors`, and `escalations_statuses`. Extend the manifest, compile the reactor, and run only the critical tests for those new contexts.

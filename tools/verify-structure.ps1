@@ -214,6 +214,10 @@ foreach ($context in $manifest.contexts) {
         $jsonPattern = '(?s)@JdbcTypeCode\(SqlTypes\.JSON\)\s*@Column\(name\s*=\s*"' + [regex]::Escape([string]$column) + '"[^)]*columnDefinition\s*=\s*"json"'
         if ($jpaEntity -notmatch $jsonPattern) { Add-Error "${entity}JpaEntity must map $column as JSON" }
     }
+    foreach ($decimal in @($context.decimalColumns | Where-Object { $_ })) {
+        $decimalPattern = '@Column\(name\s*=\s*"' + [regex]::Escape([string]$decimal.column) + '"[^)]*precision\s*=\s*' + [regex]::Escape([string]$decimal.precision) + '[^)]*scale\s*=\s*' + [regex]::Escape([string]$decimal.scale)
+        if ($jpaEntity -notmatch $decimalPattern) { Add-Error "${entity}JpaEntity precision/scale differs for $($decimal.column)" }
+    }
     if ($context.javaTypes) {
         foreach ($javaType in $context.javaTypes.PSObject.Properties) {
             $typePattern = '(?s)@Column\(name\s*=\s*"' + [regex]::Escape([string]$javaType.Name) + '"[^)]*\)\s*private\s+' + [regex]::Escape([string]$javaType.Value) + '\s+'

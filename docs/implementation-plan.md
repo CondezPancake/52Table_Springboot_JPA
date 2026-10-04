@@ -99,6 +99,8 @@ The ordering is dependency-driven, so migration numbers appear out of numerical 
 - V35–V38 retain their exact SQL table/column names (`conversations_statuses`, `name_status`, `name_priority`, and `name_type`) with required `VARCHAR(50)` values and both technical timestamps. No undeclared uniqueness or code lookup is added.
 - V39 `chat_conversations` preserves nullable timestamps and nullable `Boolean closed`. `closed_by` is a nullable raw `UUID`/`CHAR(36)`, not a typed relationship, because its migration declares no FK.
 - V40 optional patient/professional identifiers remain independently nullable and are converted null-safely. V41 JSON values remain plain strings outside infrastructure and use `@JdbcTypeCode(SqlTypes.JSON)` plus explicit MySQL `json` columns in JPA; it has only `created_at`.
+- V42 retains mixed-language and mixed-case SQL names exactly, including required `sitio_web TEXT` and `isActive`. V43 prices use domain `BigDecimal`, JPA `DECIMAL(12,8)`, and matching REST digit validation; token counts remain required integers.
+- V44 retains its two FK identifiers and required AI-enabled boolean without adding AI behavior. V45 is a timestamped status catalog with no code lookup or undeclared uniqueness.
 - JPA UUIDs use Hibernate's character JDBC type plus explicit `CHAR(36)` column definitions; the template's unqualified UUID mapping is not compatible with the supplied MySQL DDL.
 - Request validation enforces SQL nullability and maximum lengths. It does not invent `NOT BLANK` semantics where SQL only declares `NOT NULL`.
 - Java version declarations are removed from child POMs and centralized at Java 21. Surefire is pinned because the BOM alone does not provide plugin management for the template's JUnit 5 tests.
@@ -112,4 +114,5 @@ The ordering is dependency-driven, so migration numbers appear out of numerical 
 - Shared bases and `DemoApplication` exist once. Packages must match their paths, declaration kinds and essential inheritance must match the manifest, and fully qualified names must not be duplicated.
 - Domain and application remain free of Spring, JPA, and Jakarta Validation imports.
 - Run `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\verify-structure.ps1` before Maven verification for every future block.
+- Compile the complete reactor after each block, but execute only the domain aggregate and application deletion tests belonging to the contexts added in that block unless broader regression testing is explicitly requested.
 - Invoke `tools/generate-block.ps1` with `-ContextPackages` for only the pending packages. The generator rejects unknown packages and existing destinations, supports optional fields/references, primitive numeric fields with REST validation wrappers, independently present technical creation/update timestamps, business date/time fields, TEXT, and multiple named single-column UNIQUE constraints.

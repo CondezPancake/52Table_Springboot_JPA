@@ -339,6 +339,36 @@
       "lengths": {"id": 36, "conversation_id": 36, "message_type_id": 36, "participant_id": 36},
       "uuidColumns": ["id", "conversation_id", "message_type_id", "participant_id"],
       "jsonColumns": ["content", "metadata"]
+    },
+    {
+      "table": "provider_models_ai", "entity": "ProviderModelAi", "package": "providermodelai", "endpoint": "/api/provider-models-ai", "hasTimestamps": true,
+      "expectedColumns": ["id", "name_provider_ai", "razon_social", "sitio_web", "isActive", "created_at", "updated_at"],
+      "lengths": {"id": 36, "name_provider_ai": 100, "razon_social": 150},
+      "uuidColumns": ["id"],
+      "textColumns": ["sitio_web"]
+    },
+    {
+      "table": "ai_models", "entity": "AiModel", "package": "aimodel", "endpoint": "/api/ai-models", "hasTimestamps": true,
+      "expectedColumns": ["id", "provider_model_id", "name_model", "model_key", "input_token_price", "output_token_price", "max_tokens", "context_window", "is_active", "created_at", "updated_at"],
+      "lengths": {"id": 36, "provider_model_id": 36, "name_model": 100, "model_key": 120},
+      "uuidColumns": ["id", "provider_model_id"],
+      "javaTypes": {"input_token_price": "BigDecimal", "output_token_price": "BigDecimal", "max_tokens": "int", "context_window": "int"},
+      "decimalColumns": [
+        {"column": "input_token_price", "precision": 12, "scale": 8},
+        {"column": "output_token_price", "precision": 12, "scale": 8}
+      ]
+    },
+    {
+      "table": "chat_conversation_ai_settings", "entity": "ChatConversationAiSetting", "package": "chatconversationaisetting", "endpoint": "/api/chat-conversation-ai-settings", "hasTimestamps": true,
+      "expectedColumns": ["id", "conversation_id", "ai_enabled", "default_model_id", "created_at", "updated_at"],
+      "lengths": {"id": 36, "conversation_id": 36, "default_model_id": 36},
+      "uuidColumns": ["id", "conversation_id", "default_model_id"]
+    },
+    {
+      "table": "ai_runs_statuses", "entity": "AiRunStatus", "package": "airunstatus", "endpoint": "/api/ai-run-statuses", "hasTimestamps": true,
+      "expectedColumns": ["id", "name_status", "created_at", "updated_at"],
+      "lengths": {"id": 36, "name_status": 50},
+      "uuidColumns": ["id"]
     }
   ],
   "requiredResources": [

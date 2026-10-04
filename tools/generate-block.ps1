@@ -6,10 +6,11 @@ $ErrorActionPreference = 'Stop'
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
-function Field($name, $type, $column, $length, $sample, $refPackage = $null, $refEntity = $null, $nullable = $false, $columnDefinition = $null) {
+function Field($name, $type, $column, $length, $sample, $refPackage = $null, $refEntity = $null, $nullable = $false, $columnDefinition = $null, $precision = 0, $scale = 0) {
     [pscustomobject]@{
         Name = $name; Type = $type; Column = $column; Length = $length; Sample = $sample
         RefPackage = $refPackage; RefEntity = $refEntity; Nullable = $nullable; ColumnDefinition = $columnDefinition
+        Precision = $precision; Scale = $scale
     }
 }
 
@@ -480,6 +481,42 @@ $Contexts = @(
             (Field 'content' 'String' 'content' 0 '"{\"text\":\"Hello\"}"' $null $null $false 'json'),
             (Field 'metadata' 'String' 'metadata' 0 '"{}"' $null $null $false 'json')
         )
+    },
+    [pscustomobject]@{
+        Entity = 'ProviderModelAi'; Package = 'providermodelai'; Table = 'provider_models_ai'; Endpoint = 'provider-models-ai'; HasTimestamps = $true
+        Fields = @(
+            (Field 'nameProviderAi' 'String' 'name_provider_ai' 100 '"OpenAI"'),
+            (Field 'razonSocial' 'String' 'razon_social' 150 '"AI Provider Inc."'),
+            (Field 'sitioWeb' 'String' 'sitio_web' 0 '"https://example.com"' $null $null $false 'text'),
+            (Field 'active' 'boolean' 'isActive' 0 'true')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'AiModel'; Package = 'aimodel'; Table = 'ai_models'; Endpoint = 'ai-models'; HasTimestamps = $true
+        Fields = @(
+            (Field 'providerModelId' 'ProviderModelAiId' 'provider_model_id' 36 'ProviderModelAiId.generate()' 'providermodelai' 'ProviderModelAi'),
+            (Field 'nameModel' 'String' 'name_model' 100 '"Model One"'),
+            (Field 'modelKey' 'String' 'model_key' 120 '"model-one"'),
+            (Field 'inputTokenPrice' 'BigDecimal' 'input_token_price' 0 'new java.math.BigDecimal("0.00000100")' $null $null $false $null 12 8),
+            (Field 'outputTokenPrice' 'BigDecimal' 'output_token_price' 0 'new java.math.BigDecimal("0.00000200")' $null $null $false $null 12 8),
+            (Field 'maxTokens' 'int' 'max_tokens' 0 '4096'),
+            (Field 'contextWindow' 'int' 'context_window' 0 '128000'),
+            (Field 'active' 'boolean' 'is_active' 0 'true')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'ChatConversationAiSetting'; Package = 'chatconversationaisetting'; Table = 'chat_conversation_ai_settings'; Endpoint = 'chat-conversation-ai-settings'; HasTimestamps = $true
+        Fields = @(
+            (Field 'conversationId' 'ChatConversationId' 'conversation_id' 36 'ChatConversationId.generate()' 'chatconversation' 'ChatConversation'),
+            (Field 'aiEnabled' 'boolean' 'ai_enabled' 0 'true'),
+            (Field 'defaultModelId' 'AiModelId' 'default_model_id' 36 'AiModelId.generate()' 'aimodel' 'AiModel')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'AiRunStatus'; Package = 'airunstatus'; Table = 'ai_runs_statuses'; Endpoint = 'ai-run-statuses'; HasTimestamps = $true
+        Fields = @(
+            (Field 'nameStatus' 'String' 'name_status' 50 '"Completed"')
+        )
     }
 )
 
@@ -551,6 +588,7 @@ function Request-Type($field) {
 }
 function Type-Imports($context, [string[]]$exclude = @()) {
     $imports = @()
+    if ($context.Fields.Type -contains 'BigDecimal' -and 'BigDecimal' -notin $exclude) { $imports += 'import java.math.BigDecimal;' }
     if ($context.Fields.Type -contains 'LocalDate' -and 'LocalDate' -notin $exclude) { $imports += 'import java.time.LocalDate;' }
     if ($context.Fields.Type -contains 'LocalDateTime' -and 'LocalDateTime' -notin $exclude) { $imports += 'import java.time.LocalDateTime;' }
     if ($context.Fields.Type -contains 'UUID' -and 'UUID' -notin $exclude) { $imports += 'import java.util.UUID;' }
@@ -960,15 +998,18 @@ function Generate-Infrastructure($context) {
         $annotations = @()
         if (-not (Is-Nullable $_)) { $annotations += "@NotNull(message = `"$($_.Name) is required`")" }
         if ($_.Length -gt 0 -and -not (Is-Ref $_)) { $annotations += "@Size(max = $($_.Length), message = `"$($_.Name) must have at most $($_.Length) characters`")" }
+        if ($_.Precision -gt 0) { $annotations += "@Digits(integer = $($_.Precision - $_.Scale), fraction = $($_.Scale), message = `"$($_.Name) must fit DECIMAL($($_.Precision),$($_.Scale))`")" }
         $annotationText = if ($annotations.Count -gt 0) { ($annotations -join "`n        ") + "`n        " } else { '' }
         "$annotationText$type $($_.Name)"
     }) -join ",`n`n        "
     $uuidImport = if ($context.Fields | Where-Object { (Is-Ref $_) -or $_.Type -eq 'UUID' }) { "import java.util.UUID;`n`n" } else { '' }
+    $digitsImport = if ($context.Fields | Where-Object { $_.Precision -gt 0 }) { "import jakarta.validation.constraints.Digits;`n" } else { '' }
     foreach ($action in @('Create', 'Update')) {
         Write-Generated "infrastructure/src/main/java/springboot/infrastructure/$pkg/adapters/in/rest/dtos/${action}${entity}Request.java" @"
 package springboot.infrastructure.$pkg.adapters.in.rest.dtos;
 
 ${uuidImport}$typeImports
+$digitsImport
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -1070,9 +1111,10 @@ public class ${entity}Controller {
         if ((Is-Ref $_) -or $_.Type -eq 'UUID') { "    @JdbcTypeCode(SqlTypes.CHAR)`n    @Column(name = `"$($_.Column)`", nullable = $nullable, length = 36, columnDefinition = `"char(36)`")`n    private UUID $($_.Name);" }
         else {
             $length = if ($_.Length -gt 0) { ", length = $($_.Length)" } else { '' }
+            $decimal = if ($_.Precision -gt 0) { ", precision = $($_.Precision), scale = $($_.Scale)" } else { '' }
             $columnDefinition = if ($_.ColumnDefinition) { ", columnDefinition = `"$($_.ColumnDefinition)`"" } else { '' }
             $jdbcType = if ($_.ColumnDefinition -eq 'json') { "    @JdbcTypeCode(SqlTypes.JSON)`n" } else { '' }
-            "$jdbcType    @Column(name = `"$($_.Column)`", nullable = $nullable$length$columnDefinition)`n    private $($_.Type) $($_.Name);"
+            "$jdbcType    @Column(name = `"$($_.Column)`", nullable = $nullable$length$decimal$columnDefinition)`n    private $($_.Type) $($_.Name);"
         }
     }) -join "`n`n"
     $ctorFields = @('UUID id') + ($context.Fields | ForEach-Object { "$(Persistence-Type $_) $($_.Name)" })
