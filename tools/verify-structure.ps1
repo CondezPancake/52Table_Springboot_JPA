@@ -226,9 +226,12 @@ foreach ($context in $manifest.contexts) {
         $nullSafePattern = 'request\.' + [regex]::Escape([string]$property) + '\(\)\s*==\s*null\s*\?\s*null\s*:'
         if ($controller -notmatch $nullSafePattern) { Add-Error "${entity}Controller must preserve null for optional reference $property" }
     }
-    if (-not [bool]$context.hasTimestamps -and $jpaEntity -match 'created_at|updated_at') {
-        Add-Error "${entity}JpaEntity invents timestamps absent from SQL"
-    }
+    $expectsCreatedAt = if ($null -ne $context.PSObject.Properties['hasCreatedAt']) { [bool]$context.hasCreatedAt } else { [bool]$context.hasTimestamps }
+    $expectsUpdatedAt = if ($null -ne $context.PSObject.Properties['hasUpdatedAt']) { [bool]$context.hasUpdatedAt } else { [bool]$context.hasTimestamps }
+    $mapsCreatedAt = $jpaEntity -match '@Column\(name\s*=\s*"created_at"'
+    $mapsUpdatedAt = $jpaEntity -match '@Column\(name\s*=\s*"updated_at"'
+    if ($expectsCreatedAt -ne $mapsCreatedAt) { Add-Error "${entity}JpaEntity created_at presence differs from SQL" }
+    if ($expectsUpdatedAt -ne $mapsUpdatedAt) { Add-Error "${entity}JpaEntity updated_at presence differs from SQL" }
 
     if ($context.codeProperty) {
         $domainRepository = Get-Content -Raw -LiteralPath (Join-Path $ProjectRoot "domain/src/main/java/springboot/domain/$package/port/repository/${entity}Repository.java")

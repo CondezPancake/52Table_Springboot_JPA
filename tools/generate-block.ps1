@@ -320,6 +320,34 @@ $Contexts = @(
             (Field 'active' 'boolean' 'active' 0 'true'),
             (Field 'version' 'String' 'version' 20 '"5-TR"')
         )
+    },
+    [pscustomobject]@{
+        Entity = 'ClinicalRecord'; Package = 'clinicalrecord'; Table = 'clinical_records'; Endpoint = 'clinical-records'; HasTimestamps = $false; HasCreatedAt = $true; HasUpdatedAt = $false
+        Fields = @(
+            (Field 'patientId' 'PatientId' 'patient_id' 36 'PatientId.generate()' 'patient' 'Patient'),
+            (Field 'creationDate' 'LocalDateTime' 'creation_date' 0 'java.time.LocalDateTime.of(2026, 1, 10, 8, 0)'),
+            (Field 'recordNumber' 'String' 'record_number' 50 '"CR-2026-0001"'),
+            (Field 'openedAt' 'LocalDateTime' 'opened_at' 0 'java.time.LocalDateTime.of(2026, 1, 10, 8, 0)'),
+            (Field 'closedAt' 'LocalDateTime' 'closed_at' 0 'java.time.LocalDateTime.of(2026, 1, 10, 9, 0)'),
+            (Field 'statusId' 'ClinicalRecordStatusId' 'status_id' 36 'ClinicalRecordStatusId.generate()' 'clinicalrecordstatus' 'ClinicalRecordStatus'),
+            (Field 'createdBy' 'ProfessionalId' 'created_by' 36 'ProfessionalId.generate()' 'professional' 'Professional')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'Encounter'; Package = 'encounter'; Table = 'encounters'; Endpoint = 'encounters'; HasTimestamps = $true
+        Fields = @(
+            (Field 'clinicalRecordId' 'ClinicalRecordId' 'clinical_record_id' 36 'ClinicalRecordId.generate()' 'clinicalrecord' 'ClinicalRecord'),
+            (Field 'professionalId' 'ProfessionalId' 'professional_id' 36 'ProfessionalId.generate()' 'professional' 'Professional'),
+            (Field 'encounterTypeId' 'EncounterTypeId' 'encounter_type_id' 36 'EncounterTypeId.generate()' 'encountertype' 'EncounterType'),
+            (Field 'startedAt' 'LocalDateTime' 'started_at' 0 'java.time.LocalDateTime.of(2026, 1, 10, 8, 0)'),
+            (Field 'endedAt' 'LocalDateTime' 'ended_at' 0 'java.time.LocalDateTime.of(2026, 1, 10, 9, 0)'),
+            (Field 'reasonForVisit' 'String' 'reason_for_visit' 0 '"Initial consultation"' $null $null $false 'text'),
+            (Field 'currentCondition' 'String' 'current_condition' 0 '"Stable"' $null $null $false 'text'),
+            (Field 'modalityId' 'EncounterModalityId' 'modality_id' 36 'EncounterModalityId.generate()' 'encountermodality' 'EncounterModality'),
+            (Field 'statusId' 'EncounterStatusId' 'status_id' 36 'EncounterStatusId.generate()' 'encounterstatus' 'EncounterStatus'),
+            (Field 'createdBy' 'ProfessionalId' 'created_by' 36 'ProfessionalId.generate()' 'professional' 'Professional'),
+            (Field 'updatedBy' 'ProfessionalId' 'updated_by' 36 'ProfessionalId.generate()' 'professional' 'Professional')
+        )
     }
 )
 
@@ -352,7 +380,8 @@ function Response-Args($context, $variable, $indent = '                ') {
             if (Is-Nullable $_) { "$variable.$($_.Name)() == null ? null : $variable.$($_.Name)().value()" } else { "$variable.$($_.Name)().value()" }
         } else { "$variable.$($_.Name)()" }
     }
-    if (Has-Timestamps $context) { $values += @("$variable.createdAt()", "$variable.updatedAt()") }
+    if (Has-CreatedAt $context) { $values += "$variable.createdAt()" }
+    if (Has-UpdatedAt $context) { $values += "$variable.updatedAt()" }
     $values -join ",`n$indent"
 }
 function Code-Field($context) {
@@ -360,6 +389,17 @@ function Code-Field($context) {
 }
 function Has-Timestamps($context) {
     [bool]$context.HasTimestamps
+}
+function Has-CreatedAt($context) {
+    if ($null -ne $context.PSObject.Properties['HasCreatedAt']) { return [bool]$context.HasCreatedAt }
+    Has-Timestamps $context
+}
+function Has-UpdatedAt($context) {
+    if ($null -ne $context.PSObject.Properties['HasUpdatedAt']) { return [bool]$context.HasUpdatedAt }
+    Has-Timestamps $context
+}
+function Has-TechnicalTimestamp($context) {
+    (Has-CreatedAt $context) -or (Has-UpdatedAt $context)
 }
 function Is-Nullable($field) {
     [bool]$field.Nullable
@@ -464,25 +504,40 @@ $eventChecks
     $updateEventArgs = ($context.Fields | ForEach-Object { "this.$($_.Name)" }) -join ",`n                        "
     $typedArgs = Typed-Args $context
     $names = Names $context
-    $timestampDeclarations = if (Has-Timestamps $context) { "    private final LocalDateTime createdAt;`n    private LocalDateTime updatedAt;" } else { '' }
-    $constructorTimestampArguments = if (Has-Timestamps $context) { ",`n            LocalDateTime createdAt,`n            LocalDateTime updatedAt" } else { '' }
-    $timestampAssignments = if (Has-Timestamps $context) { "        this.createdAt = Objects.requireNonNull(createdAt, `"createdAt must not be null`");`n        this.updatedAt = Objects.requireNonNull(updatedAt, `"updatedAt must not be null`");" } else { '' }
-    $registerTime = if (Has-Timestamps $context) { '        LocalDateTime now = LocalDateTime.now();' } else { '        LocalDateTime occurredOn = LocalDateTime.now();' }
-    $registerTimestampArguments = if (Has-Timestamps $context) { ",`n                now,`n                now" } else { '' }
-    $registeredEventTime = if (Has-Timestamps $context) { 'now' } else { 'occurredOn' }
-    $restoreTimestampArguments = if (Has-Timestamps $context) { ",`n            LocalDateTime createdAt,`n            LocalDateTime updatedAt" } else { '' }
-    $restoreConstructorTimestampArguments = if (Has-Timestamps $context) { ",`n                createdAt,`n                updatedAt" } else { '' }
-    $updateTime = if (Has-Timestamps $context) { '        this.updatedAt = LocalDateTime.now();' } else { '        LocalDateTime occurredOn = LocalDateTime.now();' }
-    $updatedEventTime = if (Has-Timestamps $context) { 'this.updatedAt' } else { 'occurredOn' }
-    $timestampGetters = if (Has-Timestamps $context) { @"
+    $timestampDeclarations = @()
+    if (Has-CreatedAt $context) { $timestampDeclarations += '    private final LocalDateTime createdAt;' }
+    if (Has-UpdatedAt $context) { $timestampDeclarations += '    private LocalDateTime updatedAt;' }
+    $timestampDeclarations = $timestampDeclarations -join "`n"
+    $constructorTimestampArguments = ''
+    if (Has-CreatedAt $context) { $constructorTimestampArguments += ",`n            LocalDateTime createdAt" }
+    if (Has-UpdatedAt $context) { $constructorTimestampArguments += ",`n            LocalDateTime updatedAt" }
+    $timestampAssignments = @()
+    if (Has-CreatedAt $context) { $timestampAssignments += '        this.createdAt = Objects.requireNonNull(createdAt, "createdAt must not be null");' }
+    if (Has-UpdatedAt $context) { $timestampAssignments += '        this.updatedAt = Objects.requireNonNull(updatedAt, "updatedAt must not be null");' }
+    $timestampAssignments = $timestampAssignments -join "`n"
+    $registerTime = if (Has-TechnicalTimestamp $context) { '        LocalDateTime now = LocalDateTime.now();' } else { '        LocalDateTime occurredOn = LocalDateTime.now();' }
+    $registerTimestampArguments = ''
+    if (Has-CreatedAt $context) { $registerTimestampArguments += ",`n                now" }
+    if (Has-UpdatedAt $context) { $registerTimestampArguments += ",`n                now" }
+    $registeredEventTime = if (Has-TechnicalTimestamp $context) { 'now' } else { 'occurredOn' }
+    $restoreTimestampArguments = ''
+    $restoreConstructorTimestampArguments = ''
+    if (Has-CreatedAt $context) { $restoreTimestampArguments += ",`n            LocalDateTime createdAt"; $restoreConstructorTimestampArguments += ",`n                createdAt" }
+    if (Has-UpdatedAt $context) { $restoreTimestampArguments += ",`n            LocalDateTime updatedAt"; $restoreConstructorTimestampArguments += ",`n                updatedAt" }
+    $updateTime = if (Has-UpdatedAt $context) { '        this.updatedAt = LocalDateTime.now();' } else { '        LocalDateTime occurredOn = LocalDateTime.now();' }
+    $updatedEventTime = if (Has-UpdatedAt $context) { 'this.updatedAt' } else { 'occurredOn' }
+    $timestampGetters = @()
+    if (Has-CreatedAt $context) { $timestampGetters += @"
     public LocalDateTime createdAt() {
         return createdAt;
     }
-
+"@ }
+    if (Has-UpdatedAt $context) { $timestampGetters += @"
     public LocalDateTime updatedAt() {
         return updatedAt;
     }
-"@ } else { '' }
+"@ }
+    $timestampGetters = $timestampGetters -join "`n`n"
     Write-Generated "domain/src/main/java/springboot/domain/$pkg/model/aggregate/$entity.java" @"
 package springboot.domain.$pkg.model.aggregate;
 
@@ -618,10 +673,11 @@ $checks
 }
 "@
     $responseFields = @('UUID id') + ($context.Fields | ForEach-Object { "$(Response-Type $_) $($_.Name)" })
-    if (Has-Timestamps $context) { $responseFields += @('LocalDateTime createdAt', 'LocalDateTime updatedAt') }
+    if (Has-CreatedAt $context) { $responseFields += 'LocalDateTime createdAt' }
+    if (Has-UpdatedAt $context) { $responseFields += 'LocalDateTime updatedAt' }
     $responseFieldsText = $responseFields -join ",`n        "
-    $responseTimeImport = if (Has-Timestamps $context) { 'import java.time.LocalDateTime;' } else { '' }
-    $responseTypeImports = if (Has-Timestamps $context) { Type-Imports $context @('LocalDateTime') } else { Type-Imports $context }
+    $responseTimeImport = if (Has-TechnicalTimestamp $context) { 'import java.time.LocalDateTime;' } else { '' }
+    $responseTypeImports = if (Has-TechnicalTimestamp $context) { Type-Imports $context @('LocalDateTime') } else { Type-Imports $context }
     Write-Generated "application/src/main/java/springboot/application/$pkg/dto/${entity}Response.java" @"
 package springboot.application.$pkg.dto;
 
@@ -884,26 +940,36 @@ public class ${entity}Controller {
         }
     }) -join "`n`n"
     $ctorFields = @('UUID id') + ($context.Fields | ForEach-Object { "$(Persistence-Type $_) $($_.Name)" })
-    if (Has-Timestamps $context) { $ctorFields += @('LocalDateTime createdAt', 'LocalDateTime updatedAt') }
+    if (Has-CreatedAt $context) { $ctorFields += 'LocalDateTime createdAt' }
+    if (Has-UpdatedAt $context) { $ctorFields += 'LocalDateTime updatedAt' }
     $ctorFieldsText = $ctorFields -join ",`n            "
     $ctorAssignments = @('        this.id = id;') + ($context.Fields | ForEach-Object { "        this.$($_.Name) = $($_.Name);" })
-    if (Has-Timestamps $context) { $ctorAssignments += @('        this.createdAt = createdAt;', '        this.updatedAt = updatedAt;') }
+    if (Has-CreatedAt $context) { $ctorAssignments += '        this.createdAt = createdAt;' }
+    if (Has-UpdatedAt $context) { $ctorAssignments += '        this.updatedAt = updatedAt;' }
     $ctorAssign = $ctorAssignments -join "`n"
     $accessors = ($context.Fields | ForEach-Object { $pt = Persistence-Type $_; $cap = Cap $_.Name; $getter = Getter $_; "    public $pt $getter() {`n        return $($_.Name);`n    }`n`n    public void set$cap($pt $($_.Name)) {`n        this.$($_.Name) = $($_.Name);`n    }" }) -join "`n`n"
-    $timeImport = if (Has-Timestamps $context) { 'import java.time.LocalDateTime;' } else { '' }
-    $entityTypeImports = if (Has-Timestamps $context) { Type-Imports $context @('LocalDateTime') } else { Type-Imports $context }
-    $timestampColumns = if (Has-Timestamps $context) { @"
+    $timeImport = if (Has-TechnicalTimestamp $context) { 'import java.time.LocalDateTime;' } else { '' }
+    $entityTypeImports = if (Has-TechnicalTimestamp $context) { Type-Imports $context @('LocalDateTime') } else { Type-Imports $context }
+    $timestampColumns = @()
+    if (Has-CreatedAt $context) { $timestampColumns += @"
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+"@ }
+    if (Has-UpdatedAt $context) { $timestampColumns += @"
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-"@ } else { '' }
-    $timestampAccessors = if (Has-Timestamps $context) { @"
+"@ }
+    $timestampColumns = $timestampColumns -join "`n`n"
+    $timestampAccessors = @()
+    if (Has-CreatedAt $context) { $timestampAccessors += @"
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+"@ }
+    if (Has-UpdatedAt $context) { $timestampAccessors += @"
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-"@ } else { '' }
+"@ }
+    $timestampAccessors = $timestampAccessors -join "`n`n"
     $uniqueConstraints = @(Unique-Constraints $context)
     $uniqueConstraintImport = if ($uniqueConstraints.Count -gt 0) { 'import jakarta.persistence.UniqueConstraint;' } else { '' }
     $tableAnnotation = if ($uniqueConstraints.Count -gt 0) {
@@ -969,8 +1035,13 @@ $timestampAccessors
             else { "new $($_.RefEntity)Id(jpa.$getter())" }
         } else { "jpa.$getter()" }
     }) -join ",`n                "
-    $mapperToJpaTimestamps = if (Has-Timestamps $context) { "        jpa.setCreatedAt(domain.createdAt());`n        jpa.setUpdatedAt(domain.updatedAt());" } else { '' }
-    $mapperToDomainTimestamps = if (Has-Timestamps $context) { ",`n                jpa.getCreatedAt(),`n                jpa.getUpdatedAt()" } else { '' }
+    $mapperToJpaTimestamps = @()
+    if (Has-CreatedAt $context) { $mapperToJpaTimestamps += '        jpa.setCreatedAt(domain.createdAt());' }
+    if (Has-UpdatedAt $context) { $mapperToJpaTimestamps += '        jpa.setUpdatedAt(domain.updatedAt());' }
+    $mapperToJpaTimestamps = $mapperToJpaTimestamps -join "`n"
+    $mapperToDomainTimestamps = ''
+    if (Has-CreatedAt $context) { $mapperToDomainTimestamps += ",`n                jpa.getCreatedAt()" }
+    if (Has-UpdatedAt $context) { $mapperToDomainTimestamps += ",`n                jpa.getUpdatedAt()" }
     Write-Generated "infrastructure/src/main/java/springboot/infrastructure/$pkg/adapters/out/persistence/mappers/${entity}PersistenceMapper.java" @"
 package springboot.infrastructure.$pkg.adapters.out.persistence.mappers;
 

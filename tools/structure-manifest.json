@@ -238,6 +238,21 @@
       "lengths": {"id": 36, "code": 20, "name": 50, "version": 20},
       "uuidColumns": ["id"],
       "uniqueConstraints": [{"name": "uk_diagnostic_systems_code", "column": "code"}]
+    },
+    {
+      "table": "clinical_records", "entity": "ClinicalRecord", "package": "clinicalrecord", "endpoint": "/api/clinical-records", "hasTimestamps": false, "hasCreatedAt": true, "hasUpdatedAt": false,
+      "expectedColumns": ["id", "patient_id", "creation_date", "record_number", "opened_at", "closed_at", "status_id", "created_at", "created_by"],
+      "lengths": {"id": 36, "patient_id": 36, "record_number": 50, "status_id": 36, "created_by": 36},
+      "uuidColumns": ["id", "patient_id", "status_id", "created_by"],
+      "javaTypes": {"creation_date": "LocalDateTime", "opened_at": "LocalDateTime", "closed_at": "LocalDateTime"}
+    },
+    {
+      "table": "encounters", "entity": "Encounter", "package": "encounter", "endpoint": "/api/encounters", "hasTimestamps": true,
+      "expectedColumns": ["id", "clinical_record_id", "professional_id", "encounter_type_id", "started_at", "ended_at", "reason_for_visit", "current_condition", "modality_id", "status_id", "created_at", "created_by", "updated_at", "updated_by"],
+      "lengths": {"id": 36, "clinical_record_id": 36, "professional_id": 36, "encounter_type_id": 36, "modality_id": 36, "status_id": 36, "created_by": 36, "updated_by": 36},
+      "uuidColumns": ["id", "clinical_record_id", "professional_id", "encounter_type_id", "modality_id", "status_id", "created_by", "updated_by"],
+      "textColumns": ["reason_for_visit", "current_condition"],
+      "javaTypes": {"started_at": "LocalDateTime", "ended_at": "LocalDateTime"}
     }
   ],
   "requiredResources": [
