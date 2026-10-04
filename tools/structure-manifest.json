@@ -137,6 +137,57 @@
       "lengths": {"id": 36, "study_id": 36, "professional_id": 36, "title": 100, "university": 100, "resolution_number": 60, "country_id": 36},
       "nullableColumns": ["resolution_number"],
       "uuidColumns": ["id", "study_id", "professional_id", "country_id"]
+    },
+    {
+      "table": "clinical_record_statuses", "entity": "ClinicalRecordStatus", "package": "clinicalrecordstatus", "endpoint": "/api/clinical-record-statuses", "codeProperty": "code", "hasTimestamps": true,
+      "expectedColumns": ["id", "code", "name", "created_at", "updated_at"],
+      "lengths": {"id": 36, "code": 20, "name": 50},
+      "uuidColumns": ["id"],
+      "uniqueConstraints": [
+        {"name": "uk_clinical_record_statuses_code", "column": "code"},
+        {"name": "uk_clinical_record_statuses_name", "column": "name"}
+      ]
+    },
+    {
+      "table": "encounter_types", "entity": "EncounterType", "package": "encountertype", "endpoint": "/api/encounter-types", "codeProperty": "code", "hasTimestamps": true,
+      "expectedColumns": ["id", "code", "name", "active", "created_at", "updated_at"],
+      "lengths": {"id": 36, "code": 20, "name": 50},
+      "uuidColumns": ["id"],
+      "uniqueConstraints": [
+        {"name": "uk_encounter_types_code", "column": "code"},
+        {"name": "uk_encounter_types_name", "column": "name"}
+      ]
+    },
+    {
+      "table": "encounter_modalities", "entity": "EncounterModality", "package": "encountermodality", "endpoint": "/api/encounter-modalities", "codeProperty": "code", "hasTimestamps": true,
+      "expectedColumns": ["id", "code", "name", "active", "created_at", "updated_at"],
+      "lengths": {"id": 36, "code": 20, "name": 50},
+      "uuidColumns": ["id"],
+      "uniqueConstraints": [
+        {"name": "uk_encounter_modalities_code", "column": "code"},
+        {"name": "uk_encounter_modalities_name", "column": "name"}
+      ]
+    },
+    {
+      "table": "encounter_statuses", "entity": "EncounterStatus", "package": "encounterstatus", "endpoint": "/api/encounter-statuses", "codeProperty": "code", "hasTimestamps": true,
+      "expectedColumns": ["id", "code", "name", "active", "created_at", "updated_at"],
+      "lengths": {"id": 36, "code": 20, "name": 50},
+      "uuidColumns": ["id"],
+      "uniqueConstraints": [
+        {"name": "uk_encounter_statuses_code", "column": "code"},
+        {"name": "uk_encounter_statuses_name", "column": "name"}
+      ]
+    },
+    {
+      "table": "risk_levels", "entity": "RiskLevel", "package": "risklevel", "endpoint": "/api/risk-levels", "codeProperty": "code", "hasTimestamps": true,
+      "expectedColumns": ["id", "code", "name", "active", "severity", "created_at", "updated_at"],
+      "lengths": {"id": 36, "code": 20, "name": 50},
+      "uuidColumns": ["id"],
+      "javaTypes": {"severity": "int"},
+      "uniqueConstraints": [
+        {"name": "uk_risk_levels_code", "column": "code"},
+        {"name": "uk_risk_levels_name", "column": "name"}
+      ]
     }
   ],
   "requiredResources": [

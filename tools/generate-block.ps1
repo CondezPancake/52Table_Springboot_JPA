@@ -189,6 +189,66 @@ $Contexts = @(
             (Field 'resolutionNumber' 'String' 'resolution_number' 60 'null' $null $null $true),
             (Field 'countryId' 'CountryId' 'country_id' 36 'CountryId.generate()' 'country' 'Country')
         )
+    },
+    [pscustomobject]@{
+        Entity = 'ClinicalRecordStatus'; Package = 'clinicalrecordstatus'; Table = 'clinical_record_statuses'; Endpoint = 'clinical-record-statuses'; HasTimestamps = $true
+        UniqueConstraints = @(
+            [pscustomobject]@{ Name = 'uk_clinical_record_statuses_code'; Column = 'code' },
+            [pscustomobject]@{ Name = 'uk_clinical_record_statuses_name'; Column = 'name' }
+        )
+        Fields = @(
+            (Field 'code' 'String' 'code' 20 '"OPEN"'),
+            (Field 'name' 'String' 'name' 50 '"Open"')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'EncounterType'; Package = 'encountertype'; Table = 'encounter_types'; Endpoint = 'encounter-types'; HasTimestamps = $true
+        UniqueConstraints = @(
+            [pscustomobject]@{ Name = 'uk_encounter_types_code'; Column = 'code' },
+            [pscustomobject]@{ Name = 'uk_encounter_types_name'; Column = 'name' }
+        )
+        Fields = @(
+            (Field 'code' 'String' 'code' 20 '"INITIAL"'),
+            (Field 'name' 'String' 'name' 50 '"Initial consultation"'),
+            (Field 'active' 'boolean' 'active' 0 'true')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'EncounterModality'; Package = 'encountermodality'; Table = 'encounter_modalities'; Endpoint = 'encounter-modalities'; HasTimestamps = $true
+        UniqueConstraints = @(
+            [pscustomobject]@{ Name = 'uk_encounter_modalities_code'; Column = 'code' },
+            [pscustomobject]@{ Name = 'uk_encounter_modalities_name'; Column = 'name' }
+        )
+        Fields = @(
+            (Field 'code' 'String' 'code' 20 '"IN_PERSON"'),
+            (Field 'name' 'String' 'name' 50 '"In person"'),
+            (Field 'active' 'boolean' 'active' 0 'true')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'EncounterStatus'; Package = 'encounterstatus'; Table = 'encounter_statuses'; Endpoint = 'encounter-statuses'; HasTimestamps = $true
+        UniqueConstraints = @(
+            [pscustomobject]@{ Name = 'uk_encounter_statuses_code'; Column = 'code' },
+            [pscustomobject]@{ Name = 'uk_encounter_statuses_name'; Column = 'name' }
+        )
+        Fields = @(
+            (Field 'code' 'String' 'code' 20 '"SCHEDULED"'),
+            (Field 'name' 'String' 'name' 50 '"Scheduled"'),
+            (Field 'active' 'boolean' 'active' 0 'true')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'RiskLevel'; Package = 'risklevel'; Table = 'risk_levels'; Endpoint = 'risk-levels'; HasTimestamps = $true
+        UniqueConstraints = @(
+            [pscustomobject]@{ Name = 'uk_risk_levels_code'; Column = 'code' },
+            [pscustomobject]@{ Name = 'uk_risk_levels_name'; Column = 'name' }
+        )
+        Fields = @(
+            (Field 'code' 'String' 'code' 20 '"HIGH"'),
+            (Field 'name' 'String' 'name' 50 '"High"'),
+            (Field 'active' 'boolean' 'active' 0 'true'),
+            (Field 'severity' 'int' 'severity' 0 '3')
+        )
     }
 )
 
@@ -232,6 +292,19 @@ function Has-Timestamps($context) {
 }
 function Is-Nullable($field) {
     [bool]$field.Nullable
+}
+function Is-Primitive($field) {
+    $field.Type -in @('boolean', 'int', 'long', 'double')
+}
+function Request-Type($field) {
+    if (Is-Ref $field) { return 'UUID' }
+    switch ($field.Type) {
+        'boolean' { 'Boolean' }
+        'int' { 'Integer' }
+        'long' { 'Long' }
+        'double' { 'Double' }
+        default { $field.Type }
+    }
 }
 function Type-Imports($context, [string[]]$exclude = @()) {
     $imports = @()
@@ -290,7 +363,7 @@ public record ${entity}${suffix}Event(
 "@
     }
     $eventFields = ($context.Fields | ForEach-Object { "$($_.Type) $($_.Name)" }) -join ",`n        "
-    $eventChecks = ($context.Fields | Where-Object { $_.Type -ne 'boolean' -and -not (Is-Nullable $_) } | ForEach-Object { "        Objects.requireNonNull($($_.Name), `"$($_.Name) must not be null`");" }) -join "`n"
+    $eventChecks = ($context.Fields | Where-Object { -not (Is-Primitive $_) -and -not (Is-Nullable $_) } | ForEach-Object { "        Objects.requireNonNull($($_.Name), `"$($_.Name) must not be null`");" }) -join "`n"
     Write-Generated "domain/src/main/java/springboot/domain/$pkg/event/${entity}UpdatedEvent.java" @"
 package springboot.domain.$pkg.event;
 
@@ -315,7 +388,7 @@ $eventChecks
 }
 "@
     $declarations = ($context.Fields | ForEach-Object { "    private $($_.Type) $($_.Name);" }) -join "`n"
-    $assignments = ($context.Fields | ForEach-Object { if ($_.Type -eq 'boolean' -or (Is-Nullable $_)) { "        this.$($_.Name) = $($_.Name);" } else { "        this.$($_.Name) = Objects.requireNonNull($($_.Name), `"$($_.Name) must not be null`");" } }) -join "`n"
+    $assignments = ($context.Fields | ForEach-Object { if ((Is-Primitive $_) -or (Is-Nullable $_)) { "        this.$($_.Name) = $($_.Name);" } else { "        this.$($_.Name) = Objects.requireNonNull($($_.Name), `"$($_.Name) must not be null`");" } }) -join "`n"
     $getters = ($context.Fields | ForEach-Object { "    public $($_.Type) $($_.Name)() {`n        return $($_.Name);`n    }" }) -join "`n`n"
     $updateEventArgs = ($context.Fields | ForEach-Object { "this.$($_.Name)" }) -join ",`n                        "
     $typedArgs = Typed-Args $context
@@ -437,7 +510,7 @@ function Generate-Application($context) {
     $entity = $context.Entity; $pkg = $context.Package; $refs = Ref-Imports $context
     $typeImports = Type-Imports $context
     $fieldList = ($context.Fields | ForEach-Object { "$($_.Type) $($_.Name)" }) -join ",`n        "
-    $checks = ($context.Fields | Where-Object { $_.Type -ne 'boolean' -and -not (Is-Nullable $_) } | ForEach-Object { "        Objects.requireNonNull($($_.Name), `"$($_.Name) must not be null`");" }) -join "`n"
+    $checks = ($context.Fields | Where-Object { -not (Is-Primitive $_) -and -not (Is-Nullable $_) } | ForEach-Object { "        Objects.requireNonNull($($_.Name), `"$($_.Name) must not be null`");" }) -join "`n"
     Write-Generated "application/src/main/java/springboot/application/$pkg/command/Register${entity}Command.java" @"
 package springboot.application.$pkg.command;
 
@@ -621,7 +694,7 @@ function Generate-Infrastructure($context) {
     $jpaExistsByCode = if ($null -ne $codeField) { "    boolean existsBy$(Cap $codeField.Name)(String code);" } else { '' }
     $adapterExistsByCode = if ($null -ne $codeField) { "    @Override public boolean existsByCode(String code) { return jpaRepository.existsBy$(Cap $codeField.Name)(code); }" } else { '' }
     $requestFields = ($context.Fields | ForEach-Object {
-        $type = if (Is-Ref $_) { 'UUID' } elseif ($_.Type -eq 'boolean') { 'Boolean' } else { $_.Type }
+        $type = Request-Type $_
         $annotations = @()
         if (-not (Is-Nullable $_)) { $annotations += "@NotNull(message = `"$($_.Name) is required`")" }
         if ($_.Length -gt 0 -and -not (Is-Ref $_)) { $annotations += "@Size(max = $($_.Length), message = `"$($_.Name) must have at most $($_.Length) characters`")" }

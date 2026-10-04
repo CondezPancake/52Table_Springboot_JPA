@@ -86,6 +86,8 @@ The ordering is dependency-driven, so migration numbers appear out of numerical 
 - Multiple named UNIQUE constraints on `professionals` and the email constraints on `patients`/`contacts` are represented explicitly. No `existsByCode` method is added because V9–V12 have no code column.
 - V13–V16 preserve FK values as identifiers and map email uniqueness, optional TEXT allergy reaction, required TEXT email notes, and nullable professional-study resolution number exactly as declared.
 - `PatientContact` has no technical timestamps. `PatientAllergy.recordedAt` is modeled as a required `LocalDateTime` field in addition to its technical `createdAt`/`updatedAt` values.
+- V17, V19, V20, V21, and V23 are timestamped catalogs with real `code` columns, so each preserves the professor's `existsByCode` contract. Their named code/name UNIQUE constraints and SQL lengths are mapped explicitly.
+- `ClinicalRecordStatus` omits `active` because V17 does not define it. V19–V21 retain their required boolean `active`; V23 additionally maps required integer `severity` as `int` internally and validated `Integer` at the REST boundary.
 - JPA UUIDs use Hibernate's character JDBC type plus explicit `CHAR(36)` column definitions; the template's unqualified UUID mapping is not compatible with the supplied MySQL DDL.
 - Request validation enforces SQL nullability and maximum lengths. It does not invent `NOT BLANK` semantics where SQL only declares `NOT NULL`.
 - Java version declarations are removed from child POMs and centralized at Java 21. Surefire is pinned because the BOM alone does not provide plugin management for the template's JUnit 5 tests.
@@ -99,4 +101,4 @@ The ordering is dependency-driven, so migration numbers appear out of numerical 
 - Shared bases and `DemoApplication` exist once. Packages must match their paths, declaration kinds and essential inheritance must match the manifest, and fully qualified names must not be duplicated.
 - Domain and application remain free of Spring, JPA, and Jakarta Validation imports.
 - Run `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\verify-structure.ps1` before Maven verification for every future block.
-- Invoke `tools/generate-block.ps1` with `-ContextPackages` for only the pending packages. The generator rejects unknown packages and existing destinations, supports optional fields/references, technical and business date/time fields, TEXT, and multiple named single-column UNIQUE constraints.
+- Invoke `tools/generate-block.ps1` with `-ContextPackages` for only the pending packages. The generator rejects unknown packages and existing destinations, supports optional fields/references, primitive numeric fields with REST validation wrappers, technical and business date/time fields, TEXT, and multiple named single-column UNIQUE constraints.
