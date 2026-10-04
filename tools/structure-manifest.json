@@ -1,0 +1,75 @@
+{
+  "source": "demo-ddd-main.zip",
+  "rootPackage": "springboot",
+  "modules": ["domain", "application", "infrastructure"],
+  "sharedJava": [
+    {
+      "path": "application/src/main/java/springboot/application/common/exception/ApplicationException.java",
+      "name": "ApplicationException",
+      "kind": "abstract class",
+      "extends": "RuntimeException"
+    },
+    {
+      "path": "domain/src/main/java/springboot/domain/common/event/DomainEvent.java",
+      "name": "DomainEvent",
+      "kind": "interface"
+    },
+    {
+      "path": "domain/src/main/java/springboot/domain/common/model/AggregateRoot.java",
+      "name": "AggregateRoot",
+      "kind": "abstract class"
+    },
+    {
+      "path": "domain/src/test/java/springboot/domain/common/model/AggregateRootTest.java",
+      "name": "AggregateRootTest",
+      "kind": "class"
+    },
+    {
+      "path": "infrastructure/src/main/java/springboot/infrastructure/DemoApplication.java",
+      "name": "DemoApplication",
+      "kind": "class"
+    }
+  ],
+  "applicationFiles": [
+    {"path": "command/Register{entity}Command.java", "name": "Register{entity}Command", "kind": "record"},
+    {"path": "command/Update{entity}Command.java", "name": "Update{entity}Command", "kind": "record"},
+    {"path": "dto/{entity}Response.java", "name": "{entity}Response", "kind": "record"},
+    {"path": "exception/{entity}NotFoundApplicationException.java", "name": "{entity}NotFoundApplicationException", "kind": "class", "extends": "ApplicationException"},
+    {"path": "usecase/Register{entity}UseCase.java", "name": "Register{entity}UseCase", "kind": "class"},
+    {"path": "usecase/Get{entity}ByIdUseCase.java", "name": "Get{entity}ByIdUseCase", "kind": "class"},
+    {"path": "usecase/List{entity}UseCase.java", "name": "List{entity}UseCase", "kind": "class"},
+    {"path": "usecase/Update{entity}UseCase.java", "name": "Update{entity}UseCase", "kind": "class"},
+    {"path": "usecase/Delete{entity}UseCase.java", "name": "Delete{entity}UseCase", "kind": "class"}
+  ],
+  "domainFiles": [
+    {"path": "event/{entity}RegisteredEvent.java", "name": "{entity}RegisteredEvent", "kind": "record", "implements": "DomainEvent"},
+    {"path": "event/{entity}UpdatedEvent.java", "name": "{entity}UpdatedEvent", "kind": "record", "implements": "DomainEvent"},
+    {"path": "event/{entity}DeletedEvent.java", "name": "{entity}DeletedEvent", "kind": "record", "implements": "DomainEvent"},
+    {"path": "model/aggregate/{entity}.java", "name": "{entity}", "kind": "class", "extends": "AggregateRoot"},
+    {"path": "model/valueobject/{entity}Id.java", "name": "{entity}Id", "kind": "record"},
+    {"path": "port/repository/{entity}Repository.java", "name": "{entity}Repository", "kind": "interface"}
+  ],
+  "infrastructureFiles": [
+    {"path": "adapters/in/rest/controllers/{entity}Controller.java", "name": "{entity}Controller", "kind": "class"},
+    {"path": "adapters/in/rest/dtos/Create{entity}Request.java", "name": "Create{entity}Request", "kind": "record"},
+    {"path": "adapters/in/rest/dtos/Update{entity}Request.java", "name": "Update{entity}Request", "kind": "record"},
+    {"path": "adapters/out/persistence/entity/{entity}JpaEntity.java", "name": "{entity}JpaEntity", "kind": "class"},
+    {"path": "adapters/out/persistence/mappers/{entity}PersistenceMapper.java", "name": "{entity}PersistenceMapper", "kind": "class"},
+    {"path": "adapters/out/persistence/repositories/{entity}JpaRepository.java", "name": "{entity}JpaRepository", "kind": "interface", "extends": "JpaRepository"},
+    {"path": "adapters/out/persistence/repositories/{entity}RepositoryAdapter.java", "name": "{entity}RepositoryAdapter", "kind": "class", "implements": "{entity}Repository"},
+    {"path": "config/{entity}BeansConfig.java", "name": "{entity}BeansConfig", "kind": "class"}
+  ],
+  "contexts": [
+    {"table": "countries", "entity": "Country", "package": "country", "endpoint": "/api/countries", "codeProperty": "codeCountry"},
+    {"table": "state_regions", "entity": "StateRegion", "package": "stateregion", "endpoint": "/api/state-regions", "codeProperty": "codeRegion"},
+    {"table": "city_municipalities", "entity": "CityMunicipality", "package": "citymunicipality", "endpoint": "/api/city-municipalities", "codeProperty": "codeCity"}
+  ],
+  "requiredResources": [
+    "infrastructure/src/main/resources/application.yml",
+    "infrastructure/src/main/resources/application-dev.yml",
+    "infrastructure/src/main/resources/application-prod.yml",
+    "infrastructure/src/main/resources/META-INF/additional-spring-configuration-metadata.json",
+    ".vscode/settings.json",
+    ".vscode/launch.json"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "queue.block-users.fixed-delay-ms",
+      "type": "java.lang.String",
+      "description": "Scheduling metadata retained from the professor's template; no queue behavior is implemented."
+    },
+    {
+      "name": "cors.allowed-origins",
+      "type": "java.lang.String",
+      "description": "Allowed origins configured through CORS_ALLOWED_ORIGINS."
+    }
+  ]
+}

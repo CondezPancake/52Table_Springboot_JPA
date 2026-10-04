@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-DemoApplication<infrastructure>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "springboot.infrastructure.DemoApplication",
+            "projectName": "infrastructure",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
