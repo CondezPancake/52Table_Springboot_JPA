@@ -551,6 +551,31 @@ $Contexts = @(
         Fields = @(
             (Field 'nameStatus' 'String' 'name_status' 50 '"Open"')
         )
+    },
+    [pscustomobject]@{
+        Entity = 'ChatEscalation'; Package = 'chatescalation'; Table = 'chat_escalations'; Endpoint = 'chat-escalations'; HasTimestamps = $false; HasCreatedAt = $true; HasUpdatedAt = $false
+        Fields = @(
+            (Field 'conversationId' 'ChatConversationId' 'conversation_id' 36 'ChatConversationId.generate()' 'chatconversation' 'ChatConversation'),
+            (Field 'statusId' 'EscalationStatusId' 'status_id' 36 'EscalationStatusId.generate()' 'escalationstatus' 'EscalationStatus'),
+            (Field 'fromAi' 'boolean' 'from_ai' 0 'true'),
+            (Field 'reason' 'String' 'reason' 0 '"Requires professional review"' $null $null $false 'text')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'ChatEscalationAssignment'; Package = 'chatescalationassignment'; Table = 'chat_escalation_assignments'; Endpoint = 'chat-escalation-assignments'; HasTimestamps = $false
+        Fields = @(
+            (Field 'escalationId' 'ChatEscalationId' 'escalation_id' 36 'ChatEscalationId.generate()' 'chatescalation' 'ChatEscalation'),
+            (Field 'professionalId' 'ProfessionalId' 'professional_id' 36 'ProfessionalId.generate()' 'professional' 'Professional'),
+            (Field 'assignedAt' 'LocalDateTime' 'assigned_at' 0 'java.time.LocalDateTime.of(2026, 1, 10, 10, 0)')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'ChatEscalationStatusHistory'; Package = 'chatescalationstatushistory'; Table = 'chat_escalation_status_history'; Endpoint = 'chat-escalation-status-history'; HasTimestamps = $false; HasCreatedAt = $true; HasUpdatedAt = $false
+        Fields = @(
+            (Field 'escalationId' 'ChatEscalationId' 'escalation_id' 36 'ChatEscalationId.generate()' 'chatescalation' 'ChatEscalation'),
+            (Field 'escalationStatusId' 'EscalationStatusId' 'escalation_status_id' 36 'EscalationStatusId.generate()' 'escalationstatus' 'EscalationStatus'),
+            (Field 'changedAt' 'LocalDateTime' 'changed_at' 0 'java.time.LocalDateTime.of(2026, 1, 10, 10, 30)')
+        )
     }
 )
 

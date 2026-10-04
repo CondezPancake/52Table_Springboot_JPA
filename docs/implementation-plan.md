@@ -103,6 +103,9 @@ The ordering is dependency-driven, so migration numbers appear out of numerical 
 - V44 retains its two FK identifiers and required AI-enabled boolean without adding AI behavior. V45 is a timestamped status catalog with no code lookup or undeclared uniqueness.
 - V46 retains four FK identifiers and both technical timestamps without adding AI execution behavior. V47 maps token metrics as required integers and cost as `BigDecimal`/`DECIMAL(10,6)` with matching REST digit validation.
 - V47/V48 have only `created_at`, modeled independently without `updatedAt`. V48 keeps its required error message as `TEXT` and exact code/provider identifier lengths; V49 remains a timestamped status catalog without invented uniqueness or code lookup.
+- V50 keeps conversation/status as identifiers, `from_ai` as required boolean, reason as required `TEXT`, and only technical `created_at`. V51 has no technical timestamps; `assignedAt` is required business state.
+- V52 retains escalation/status identifiers plus separate required technical `createdAt` and business `changedAt`, without inventing `updatedAt`, code lookup, or uniqueness.
+- Implementation status: all 52 rows in the table-to-context map have complete explicit contexts in all three modules and are represented once in the structural manifest.
 - JPA UUIDs use Hibernate's character JDBC type plus explicit `CHAR(36)` column definitions; the template's unqualified UUID mapping is not compatible with the supplied MySQL DDL.
 - Request validation enforces SQL nullability and maximum lengths. It does not invent `NOT BLANK` semantics where SQL only declares `NOT NULL`.
 - Java version declarations are removed from child POMs and centralized at Java 21. Surefire is pinned because the BOM alone does not provide plugin management for the template's JUnit 5 tests.

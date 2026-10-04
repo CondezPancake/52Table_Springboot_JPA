@@ -396,6 +396,27 @@
       "expectedColumns": ["id", "name_status", "created_at", "updated_at"],
       "lengths": {"id": 36, "name_status": 50},
       "uuidColumns": ["id"]
+    },
+    {
+      "table": "chat_escalations", "entity": "ChatEscalation", "package": "chatescalation", "endpoint": "/api/chat-escalations", "hasTimestamps": false, "hasCreatedAt": true, "hasUpdatedAt": false,
+      "expectedColumns": ["id", "conversation_id", "status_id", "from_ai", "reason", "created_at"],
+      "lengths": {"id": 36, "conversation_id": 36, "status_id": 36},
+      "uuidColumns": ["id", "conversation_id", "status_id"],
+      "textColumns": ["reason"]
+    },
+    {
+      "table": "chat_escalation_assignments", "entity": "ChatEscalationAssignment", "package": "chatescalationassignment", "endpoint": "/api/chat-escalation-assignments", "hasTimestamps": false,
+      "expectedColumns": ["id", "escalation_id", "professional_id", "assigned_at"],
+      "lengths": {"id": 36, "escalation_id": 36, "professional_id": 36},
+      "uuidColumns": ["id", "escalation_id", "professional_id"],
+      "javaTypes": {"assigned_at": "LocalDateTime"}
+    },
+    {
+      "table": "chat_escalation_status_history", "entity": "ChatEscalationStatusHistory", "package": "chatescalationstatushistory", "endpoint": "/api/chat-escalation-status-history", "hasTimestamps": false, "hasCreatedAt": true, "hasUpdatedAt": false,
+      "expectedColumns": ["id", "escalation_id", "escalation_status_id", "created_at", "changed_at"],
+      "lengths": {"id": 36, "escalation_id": 36, "escalation_status_id": 36},
+      "uuidColumns": ["id", "escalation_id", "escalation_status_id"],
+      "javaTypes": {"changed_at": "LocalDateTime"}
     }
   ],
   "requiredResources": [

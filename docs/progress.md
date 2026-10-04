@@ -18,7 +18,7 @@ Last updated: 2026-10-04 (America/Bogota)
 | 10 | chat_conversations, chat_participants, chat_messages | Complete and verified |
 | 11 | provider_models_ai, ai_models, chat_conversation_ai_settings, ai_runs_statuses | Complete and verified |
 | 12 | chat_ai_runs, chat_ai_run_metrics, chat_ai_run_errors, escalations_statuses | Complete and verified |
-| 13 | chat_escalations, chat_escalation_assignments, chat_escalation_status_history | Pending |
+| 13 | chat_escalations, chat_escalation_assignments, chat_escalation_status_history | Complete and verified |
 
 ## Checks completed
 
@@ -30,7 +30,7 @@ Last updated: 2026-10-04 (America/Bogota)
 - Renamed the only boot class to `springboot.infrastructure.DemoApplication`, updated the infrastructure POM and VS Code launcher, and retained root package scanning.
 - Added the template's Spring configuration metadata, with matching environment-backed queue-delay and CORS properties but no queue behavior.
 - Restored `existsByCode` for the initial three contexts using their real JPA properties, without altering the non-unique SQL constraints.
-- Added `tools/structure-manifest.json` and `tools/verify-structure.ps1`; after block 12 the verifier passes for 49 contexts, 1,279 Java files, exact declaration types/packages, 7 beans per context, layer boundaries, SQL columns, lengths, precision/scale, nullability, UUID/TEXT/DATE/JSON/timestamp mappings, and 52 migration versions.
+- Added `tools/structure-manifest.json` and `tools/verify-structure.ps1`; after block 13 the verifier passes for all 52 contexts, 1,357 Java files, exact declaration types/packages, 7 beans per context, layer boundaries, SQL columns, lengths, precision/scale, nullability, UUID/TEXT/DATE/JSON/timestamp mappings, and 52 migration versions.
 - Maven wrapper 3.3.4 verified with `JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot`; Maven 3.9.16 runs on Java 21.0.12.1.
 - Copied all 52 original migrations once into infrastructure. Source/destination SHA-256 comparison reports 52 matches and zero mismatches; there is no template Country migration.
 - Implemented full Country-pattern contexts for `countries`, `state_regions`, and `city_municipalities`: 9 application files, 6 domain files, 8 infrastructure files, one common domain exception, and 2 equivalent tests per context.
@@ -91,15 +91,20 @@ Last updated: 2026-10-04 (America/Bogota)
 - `ChatAiRunMetric.cost` uses `BigDecimal`, explicit JPA precision 10/scale 6, and matching REST `@Digits(integer = 4, fraction = 6)`. Its three token counts remain required integers.
 - `ChatAiRunMetric` and `ChatAiRunError` preserve only `createdAt`, without inventing `updatedAt`. Error message uses required `TEXT`, while error code/provider identifier retain `VARCHAR(80)`/`VARCHAR(120)`.
 - None of the block-12 tables declares a code column or UNIQUE constraint, so no existence query or uniqueness was invented.
+- Implemented complete Country-pattern contexts for V50–V52: `ChatEscalation`, `ChatEscalationAssignment`, and `ChatEscalationStatusHistory`, each with 9 application files, 6 domain files, 8 infrastructure files, its domain common exception, and 2 equivalent test classes.
+- Verified block 13 against SQL: all FK values remain typed identifiers/`CHAR(36)` UUIDs, escalation reason is required `TEXT`, and the required `fromAi` boolean is preserved.
+- `ChatEscalation` and `ChatEscalationStatusHistory` have only technical `createdAt`; the latter keeps `changedAt` as a separate required business timestamp. `ChatEscalationAssignment` has no technical timestamps and keeps `assignedAt` as business state.
+- None of the final tables declares a code column or UNIQUE constraint, so no existence query or uniqueness was invented.
+- All 52 planned table contexts are now implemented exactly once across domain, application, and infrastructure.
 - Confirmed domain/application source contains no Spring, JPA, or Jakarta Validation imports. No legacy package, PostgreSQL setting, `create-drop`, TODO, or stub implementation remains in main source.
 - Confirmed the implementation plan has exactly 52 table mapping rows.
 
 ## Verification states
 
 - Compiled: yes. `mvnw.cmd -o clean package -DskipTests` succeeded for the full four-project reactor with Maven 3.9.16 on JDK 21.0.12.1 and Java release 21.
-- Tests executed: yes, limited to the current block as requested. Twelve critical block-12 tests ran (4 domain registration-event tests and 8 application deletion tests), with zero failures, errors, or skips. Historical-context tests were not rerun.
+- Tests executed: yes, limited to the current block as requested. Nine critical block-13 tests ran (3 domain registration-event tests and 6 application deletion tests), with zero failures, errors, or skips. Historical-context tests were not rerun.
 - Persistence verified: no. There is no `.env`, `DB_URL`, MySQL client, Docker command, or confirmed dedicated MySQL database in this environment. Flyway/Hibernate startup was intentionally not pointed at the default or an unknown shared database.
 
 ## Next action
 
-In the next requested implementation execution, begin the final block 13: `chat_escalations`, `chat_escalation_assignments`, and `chat_escalation_status_history`. Extend the manifest, compile the reactor, and run only the critical tests for those new contexts.
+No table contexts remain pending: all 52 are implemented. The remaining optional verification is Flyway/Hibernate startup against a confirmed dedicated MySQL 8 database; do not point it at an unknown or shared database. A broader regression suite can also be run if explicitly requested.
