@@ -6,8 +6,11 @@ $ErrorActionPreference = 'Stop'
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
-function Field($name, $type, $column, $length, $sample, $refPackage = $null, $refEntity = $null) {
-    [pscustomobject]@{ Name = $name; Type = $type; Column = $column; Length = $length; Sample = $sample; RefPackage = $refPackage; RefEntity = $refEntity }
+function Field($name, $type, $column, $length, $sample, $refPackage = $null, $refEntity = $null, $nullable = $false, $columnDefinition = $null) {
+    [pscustomobject]@{
+        Name = $name; Type = $type; Column = $column; Length = $length; Sample = $sample
+        RefPackage = $refPackage; RefEntity = $refEntity; Nullable = $nullable; ColumnDefinition = $columnDefinition
+    }
 }
 
 $Contexts = @(
@@ -76,6 +79,71 @@ $Contexts = @(
         Fields = @(
             (Field 'name' 'String' 'name' 40 '"Clinical Psychology"')
         )
+    },
+    [pscustomobject]@{
+        Entity = 'Professional'; Package = 'professional'; Table = 'professionals'; Endpoint = 'professionals'; HasTimestamps = $true
+        UniqueConstraints = @(
+            [pscustomobject]@{ Name = 'uk_professionals_document_number'; Column = 'document_number' },
+            [pscustomobject]@{ Name = 'uk_professionals_first_name'; Column = 'first_name' },
+            [pscustomobject]@{ Name = 'uk_professionals_last_name'; Column = 'last_name' },
+            [pscustomobject]@{ Name = 'uk_professionals_license_number'; Column = 'license_number' }
+        )
+        Fields = @(
+            (Field 'documentTypeId' 'DocumentTypeId' 'document_type_id' 36 'DocumentTypeId.generate()' 'documenttype' 'DocumentType'),
+            (Field 'documentNumber' 'String' 'document_number' 30 '"123456789"'),
+            (Field 'firstName' 'String' 'first_name' 60 '"Ana"'),
+            (Field 'lastName' 'String' 'last_name' 60 '"Ramirez"'),
+            (Field 'professionalTypeId' 'ProfessionalTypeId' 'professional_type' 36 'ProfessionalTypeId.generate()' 'professionaltype' 'ProfessionalType'),
+            (Field 'licenseNumber' 'String' 'license_number' 100 '"PSY-12345"'),
+            (Field 'active' 'boolean' 'active' 0 'true'),
+            (Field 'cityId' 'CityMunicipalityId' 'city_id' 36 'CityMunicipalityId.generate()' 'citymunicipality' 'CityMunicipality')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'Patient'; Package = 'patient'; Table = 'patients'; Endpoint = 'patients'; HasTimestamps = $true
+        UniqueConstraints = @(
+            [pscustomobject]@{ Name = 'uk_patients_email'; Column = 'email' }
+        )
+        Fields = @(
+            (Field 'documentTypeId' 'DocumentTypeId' 'document_type_id' 36 'DocumentTypeId.generate()' 'documenttype' 'DocumentType'),
+            (Field 'documentNumber' 'String' 'document_number' 30 '"987654321"'),
+            (Field 'firstName' 'String' 'first_name' 50 '"Laura"'),
+            (Field 'middleName' 'String' 'middle_name' 50 'null' $null $null $true),
+            (Field 'lastName' 'String' 'last_name' 50 '"Gomez"'),
+            (Field 'secondLastName' 'String' 'second_last_name' 50 'null' $null $null $true),
+            (Field 'birthDate' 'LocalDate' 'birth_date' 0 'java.time.LocalDate.of(1990, 1, 1)'),
+            (Field 'biologicalSexId' 'GenderId' 'biological_sex_id' 36 'GenderId.generate()' 'gender' 'Gender'),
+            (Field 'genderIdentityId' 'GenderId' 'gender_identity' 36 'GenderId.generate()' 'gender' 'Gender'),
+            (Field 'email' 'String' 'email' 150 '"laura@example.com"'),
+            (Field 'phone' 'String' 'phone' 30 '"3001234567"'),
+            (Field 'address' 'String' 'address' 250 '"Main Street 123"'),
+            (Field 'active' 'boolean' 'active' 0 'true'),
+            (Field 'createdBy' 'ProfessionalId' 'created_by' 36 'null' 'professional' 'Professional' $true),
+            (Field 'updatedBy' 'ProfessionalId' 'updated_by' 36 'null' 'professional' 'Professional' $true),
+            (Field 'cityId' 'CityMunicipalityId' 'city_id' 36 'CityMunicipalityId.generate()' 'citymunicipality' 'CityMunicipality')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'Contact'; Package = 'contact'; Table = 'contacts'; Endpoint = 'contacts'; HasTimestamps = $true
+        UniqueConstraints = @(
+            [pscustomobject]@{ Name = 'uk_contacts_email'; Column = 'email' }
+        )
+        Fields = @(
+            (Field 'fullName' 'String' 'full_name' 200 '"Emergency Contact"'),
+            (Field 'email' 'String' 'email' 150 '"contact@example.com"'),
+            (Field 'notes' 'String' 'notes' 0 '"Primary contact"' $null $null $false 'text'),
+            (Field 'cityId' 'CityMunicipalityId' 'city_id' 36 'CityMunicipalityId.generate()' 'citymunicipality' 'CityMunicipality'),
+            (Field 'createdBy' 'ProfessionalId' 'created_by' 36 'ProfessionalId.generate()' 'professional' 'Professional'),
+            (Field 'updatedBy' 'ProfessionalId' 'updated_by' 36 'null' 'professional' 'Professional' $true)
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'PhoneContact'; Package = 'phonecontact'; Table = 'phone_contacts'; Endpoint = 'phone-contacts'; HasTimestamps = $false
+        Fields = @(
+            (Field 'contactId' 'ContactId' 'contact_id' 36 'ContactId.generate()' 'contact' 'Contact'),
+            (Field 'phone' 'String' 'phone' 30 'null' $null $null $true),
+            (Field 'notes' 'String' 'notes' 0 '"Call after 5 PM"' $null $null $false 'text')
+        )
     }
 )
 
@@ -103,7 +171,11 @@ function Names($context, $prefix = '', $indent = '                ') {
 }
 function Response-Args($context, $variable, $indent = '                ') {
     $values = @("$variable.id().value()")
-    $values += $context.Fields | ForEach-Object { if (Is-Ref $_) { "$variable.$($_.Name)().value()" } else { "$variable.$($_.Name)()" } }
+    $values += $context.Fields | ForEach-Object {
+        if (Is-Ref $_) {
+            if (Is-Nullable $_) { "$variable.$($_.Name)() == null ? null : $variable.$($_.Name)().value()" } else { "$variable.$($_.Name)().value()" }
+        } else { "$variable.$($_.Name)()" }
+    }
     if (Has-Timestamps $context) { $values += @("$variable.createdAt()", "$variable.updatedAt()") }
     $values -join ",`n$indent"
 }
@@ -113,9 +185,23 @@ function Code-Field($context) {
 function Has-Timestamps($context) {
     [bool]$context.HasTimestamps
 }
+function Is-Nullable($field) {
+    [bool]$field.Nullable
+}
+function Type-Imports($context) {
+    if ($context.Fields.Type -contains 'LocalDate') { 'import java.time.LocalDate;' } else { '' }
+}
+function Unique-Constraints($context) {
+    if ($context.UniqueConstraints) { return @($context.UniqueConstraints) }
+    if ($context.UniqueConstraint) {
+        return @([pscustomobject]@{ Name = $context.UniqueConstraint; Column = $context.UniqueColumn })
+    }
+    @()
+}
 
 function Generate-Domain($context) {
     $entity = $context.Entity; $pkg = $context.Package; $refs = Ref-Imports $context
+    $typeImports = Type-Imports $context
     $codeField = Code-Field $context
     $existsByCode = if ($null -ne $codeField) { '    boolean existsByCode(String code);' } else { '' }
     Write-Generated "domain/src/main/java/springboot/domain/$pkg/model/valueobject/${entity}Id.java" @"
@@ -156,12 +242,13 @@ public record ${entity}${suffix}Event(
 "@
     }
     $eventFields = ($context.Fields | ForEach-Object { "$($_.Type) $($_.Name)" }) -join ",`n        "
-    $eventChecks = ($context.Fields | Where-Object { $_.Type -ne 'boolean' } | ForEach-Object { "        Objects.requireNonNull($($_.Name), `"$($_.Name) must not be null`");" }) -join "`n"
+    $eventChecks = ($context.Fields | Where-Object { $_.Type -ne 'boolean' -and -not (Is-Nullable $_) } | ForEach-Object { "        Objects.requireNonNull($($_.Name), `"$($_.Name) must not be null`");" }) -join "`n"
     Write-Generated "domain/src/main/java/springboot/domain/$pkg/event/${entity}UpdatedEvent.java" @"
 package springboot.domain.$pkg.event;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+$typeImports
 
 import springboot.domain.common.event.DomainEvent;
 import springboot.domain.$pkg.model.valueobject.${entity}Id;
@@ -180,7 +267,7 @@ $eventChecks
 }
 "@
     $declarations = ($context.Fields | ForEach-Object { "    private $($_.Type) $($_.Name);" }) -join "`n"
-    $assignments = ($context.Fields | ForEach-Object { if ($_.Type -eq 'boolean') { "        this.$($_.Name) = $($_.Name);" } else { "        this.$($_.Name) = Objects.requireNonNull($($_.Name), `"$($_.Name) must not be null`");" } }) -join "`n"
+    $assignments = ($context.Fields | ForEach-Object { if ($_.Type -eq 'boolean' -or (Is-Nullable $_)) { "        this.$($_.Name) = $($_.Name);" } else { "        this.$($_.Name) = Objects.requireNonNull($($_.Name), `"$($_.Name) must not be null`");" } }) -join "`n"
     $getters = ($context.Fields | ForEach-Object { "    public $($_.Type) $($_.Name)() {`n        return $($_.Name);`n    }" }) -join "`n`n"
     $updateEventArgs = ($context.Fields | ForEach-Object { "this.$($_.Name)" }) -join ",`n                        "
     $typedArgs = Typed-Args $context
@@ -209,6 +296,7 @@ package springboot.domain.$pkg.model.aggregate;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+$typeImports
 
 import springboot.domain.common.model.AggregateRoot;
 import springboot.domain.$pkg.event.${entity}RegisteredEvent;
@@ -299,12 +387,14 @@ public class ${entity}NotFoundException extends RuntimeException {
 
 function Generate-Application($context) {
     $entity = $context.Entity; $pkg = $context.Package; $refs = Ref-Imports $context
+    $typeImports = Type-Imports $context
     $fieldList = ($context.Fields | ForEach-Object { "$($_.Type) $($_.Name)" }) -join ",`n        "
-    $checks = ($context.Fields | Where-Object { $_.Type -ne 'boolean' } | ForEach-Object { "        Objects.requireNonNull($($_.Name), `"$($_.Name) must not be null`");" }) -join "`n"
+    $checks = ($context.Fields | Where-Object { $_.Type -ne 'boolean' -and -not (Is-Nullable $_) } | ForEach-Object { "        Objects.requireNonNull($($_.Name), `"$($_.Name) must not be null`");" }) -join "`n"
     Write-Generated "application/src/main/java/springboot/application/$pkg/command/Register${entity}Command.java" @"
 package springboot.application.$pkg.command;
 
 import java.util.Objects;
+$typeImports
 
 $refs
 
@@ -320,6 +410,7 @@ $checks
 package springboot.application.$pkg.command;
 
 import java.util.Objects;
+$typeImports
 
 import springboot.domain.$pkg.model.valueobject.${entity}Id;
 $refs
@@ -338,10 +429,12 @@ $checks
     if (Has-Timestamps $context) { $responseFields += @('LocalDateTime createdAt', 'LocalDateTime updatedAt') }
     $responseFieldsText = $responseFields -join ",`n        "
     $responseTimeImport = if (Has-Timestamps $context) { 'import java.time.LocalDateTime;' } else { '' }
+    $responseTypeImports = Type-Imports $context
     Write-Generated "application/src/main/java/springboot/application/$pkg/dto/${entity}Response.java" @"
 package springboot.application.$pkg.dto;
 
 $responseTimeImport
+$responseTypeImports
 import java.util.UUID;
 
 public record ${entity}Response(
@@ -475,21 +568,25 @@ public class Delete${entity}UseCase {
 
 function Generate-Infrastructure($context) {
     $entity = $context.Entity; $pkg = $context.Package; $refs = Ref-Imports $context
+    $typeImports = Type-Imports $context
     $codeField = Code-Field $context
     $jpaExistsByCode = if ($null -ne $codeField) { "    boolean existsBy$(Cap $codeField.Name)(String code);" } else { '' }
     $adapterExistsByCode = if ($null -ne $codeField) { "    @Override public boolean existsByCode(String code) { return jpaRepository.existsBy$(Cap $codeField.Name)(code); }" } else { '' }
     $requestFields = ($context.Fields | ForEach-Object {
         $type = if (Is-Ref $_) { 'UUID' } elseif ($_.Type -eq 'boolean') { 'Boolean' } else { $_.Type }
-        $annotations = "@NotNull(message = `"$($_.Name) is required`")"
-        if ($_.Length -gt 0 -and -not (Is-Ref $_)) { $annotations += "`n        @Size(max = $($_.Length), message = `"$($_.Name) must have at most $($_.Length) characters`")" }
-        "$annotations`n        $type $($_.Name)"
+        $annotations = @()
+        if (-not (Is-Nullable $_)) { $annotations += "@NotNull(message = `"$($_.Name) is required`")" }
+        if ($_.Length -gt 0 -and -not (Is-Ref $_)) { $annotations += "@Size(max = $($_.Length), message = `"$($_.Name) must have at most $($_.Length) characters`")" }
+        $annotationText = if ($annotations.Count -gt 0) { ($annotations -join "`n        ") + "`n        " } else { '' }
+        "$annotationText$type $($_.Name)"
     }) -join ",`n`n        "
     $uuidImport = if ($context.Fields | Where-Object { Is-Ref $_ }) { "import java.util.UUID;`n`n" } else { '' }
     foreach ($action in @('Create', 'Update')) {
         Write-Generated "infrastructure/src/main/java/springboot/infrastructure/$pkg/adapters/in/rest/dtos/${action}${entity}Request.java" @"
 package springboot.infrastructure.$pkg.adapters.in.rest.dtos;
 
-${uuidImport}import jakarta.validation.constraints.NotNull;
+${uuidImport}$typeImports
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record ${action}${entity}Request(
@@ -498,7 +595,12 @@ public record ${action}${entity}Request(
 }
 "@
     }
-    $requestArgs = ($context.Fields | ForEach-Object { if (Is-Ref $_) { "new $($_.RefEntity)Id(request.$($_.Name)())" } else { "request.$($_.Name)()" } }) -join ",`n                        "
+    $requestArgs = ($context.Fields | ForEach-Object {
+        if (Is-Ref $_) {
+            if (Is-Nullable $_) { "request.$($_.Name)() == null ? null : new $($_.RefEntity)Id(request.$($_.Name)())" }
+            else { "new $($_.RefEntity)Id(request.$($_.Name)())" }
+        } else { "request.$($_.Name)()" }
+    }) -join ",`n                        "
     Write-Generated "infrastructure/src/main/java/springboot/infrastructure/$pkg/adapters/in/rest/controllers/${entity}Controller.java" @"
 package springboot.infrastructure.$pkg.adapters.in.rest.controllers;
 
@@ -581,8 +683,13 @@ public class ${entity}Controller {
 }
 "@
     $columns = ($context.Fields | ForEach-Object {
-        if (Is-Ref $_) { "    @JdbcTypeCode(SqlTypes.CHAR)`n    @Column(name = `"$($_.Column)`", nullable = false, length = 36, columnDefinition = `"char(36)`")`n    private UUID $($_.Name);" }
-        else { $length = if ($_.Length -gt 0) { ", length = $($_.Length)" } else { '' }; "    @Column(name = `"$($_.Column)`", nullable = false$length)`n    private $($_.Type) $($_.Name);" }
+        $nullable = if (Is-Nullable $_) { 'true' } else { 'false' }
+        if (Is-Ref $_) { "    @JdbcTypeCode(SqlTypes.CHAR)`n    @Column(name = `"$($_.Column)`", nullable = $nullable, length = 36, columnDefinition = `"char(36)`")`n    private UUID $($_.Name);" }
+        else {
+            $length = if ($_.Length -gt 0) { ", length = $($_.Length)" } else { '' }
+            $columnDefinition = if ($_.ColumnDefinition) { ", columnDefinition = `"$($_.ColumnDefinition)`"" } else { '' }
+            "    @Column(name = `"$($_.Column)`", nullable = $nullable$length$columnDefinition)`n    private $($_.Type) $($_.Name);"
+        }
     }) -join "`n`n"
     $ctorFields = @('UUID id') + ($context.Fields | ForEach-Object { "$(Persistence-Type $_) $($_.Name)" })
     if (Has-Timestamps $context) { $ctorFields += @('LocalDateTime createdAt', 'LocalDateTime updatedAt') }
@@ -604,9 +711,12 @@ public class ${entity}Controller {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 "@ } else { '' }
-    $uniqueConstraintImport = if ($context.UniqueConstraint) { 'import jakarta.persistence.UniqueConstraint;' } else { '' }
-    $tableAnnotation = if ($context.UniqueConstraint) {
-        '@Table(name = "{0}", uniqueConstraints = @UniqueConstraint(name = "{1}", columnNames = "{2}"))' -f $context.Table, $context.UniqueConstraint, $context.UniqueColumn
+    $uniqueConstraints = @(Unique-Constraints $context)
+    $uniqueConstraintImport = if ($uniqueConstraints.Count -gt 0) { 'import jakarta.persistence.UniqueConstraint;' } else { '' }
+    $tableAnnotation = if ($uniqueConstraints.Count -gt 0) {
+        $annotations = @($uniqueConstraints | ForEach-Object { '@UniqueConstraint(name = "{0}", columnNames = "{1}")' -f $_.Name, $_.Column })
+        $constraintValue = if ($annotations.Count -eq 1) { $annotations[0] } else { '{ ' + ($annotations -join ', ') + ' }' }
+        '@Table(name = "{0}", uniqueConstraints = {1})' -f $context.Table, $constraintValue
     } else {
         '@Table(name = "{0}")' -f $context.Table
     }
@@ -614,6 +724,7 @@ public class ${entity}Controller {
 package springboot.infrastructure.$pkg.adapters.out.persistence.entity;
 
 $timeImport
+$typeImports
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
@@ -651,8 +762,20 @@ $accessors
 $timestampAccessors
 }
 "@
-    $toJpa = ($context.Fields | ForEach-Object { $cap = Cap $_.Name; $suffix = if (Is-Ref $_) { '.value()' } else { '' }; "        jpa.set$cap(domain.$($_.Name)()$suffix);" }) -join "`n"
-    $toDomain = ($context.Fields | ForEach-Object { $getter = Getter $_; if (Is-Ref $_) { "new $($_.RefEntity)Id(jpa.$getter())" } else { "jpa.$getter()" } }) -join ",`n                "
+    $toJpa = ($context.Fields | ForEach-Object {
+        $cap = Cap $_.Name
+        if (Is-Ref $_) {
+            if (Is-Nullable $_) { "        jpa.set$cap(domain.$($_.Name)() == null ? null : domain.$($_.Name)().value());" }
+            else { "        jpa.set$cap(domain.$($_.Name)().value());" }
+        } else { "        jpa.set$cap(domain.$($_.Name)());" }
+    }) -join "`n"
+    $toDomain = ($context.Fields | ForEach-Object {
+        $getter = Getter $_
+        if (Is-Ref $_) {
+            if (Is-Nullable $_) { "jpa.$getter() == null ? null : new $($_.RefEntity)Id(jpa.$getter())" }
+            else { "new $($_.RefEntity)Id(jpa.$getter())" }
+        } else { "jpa.$getter()" }
+    }) -join ",`n                "
     $mapperToJpaTimestamps = if (Has-Timestamps $context) { "        jpa.setCreatedAt(domain.createdAt());`n        jpa.setUpdatedAt(domain.updatedAt());" } else { '' }
     $mapperToDomainTimestamps = if (Has-Timestamps $context) { ",`n                jpa.getCreatedAt(),`n                jpa.getUpdatedAt()" } else { '' }
     Write-Generated "infrastructure/src/main/java/springboot/infrastructure/$pkg/adapters/out/persistence/mappers/${entity}PersistenceMapper.java" @"

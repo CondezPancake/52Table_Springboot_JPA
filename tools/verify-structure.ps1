@@ -178,11 +178,53 @@ foreach ($context in $manifest.contexts) {
     if (@(Compare-Object -ReferenceObject $expectedColumns -DifferenceObject $mappedColumns).Count -ne 0) {
         Add-Error "${entity}JpaEntity columns differ from the manifest/SQL contract"
     }
-    if ($context.uniqueConstraint) {
-        $uniqueColumnPattern = 'columnNames\s*=\s*"' + [regex]::Escape([string]$context.uniqueColumn) + '"'
-        if ($jpaEntity -notmatch [regex]::Escape([string]$context.uniqueConstraint) -or $jpaEntity -notmatch $uniqueColumnPattern) {
-            Add-Error "${entity}JpaEntity is missing UNIQUE $($context.uniqueConstraint) on $($context.uniqueColumn)"
+    $uniqueConstraints = @()
+    if ($context.uniqueConstraints) {
+        $uniqueConstraints = @($context.uniqueConstraints)
+    } elseif ($context.uniqueConstraint) {
+        $uniqueConstraints = @([pscustomobject]@{ name = $context.uniqueConstraint; column = $context.uniqueColumn })
+    }
+    foreach ($constraint in $uniqueConstraints) {
+        $uniqueColumnPattern = 'columnNames\s*=\s*"' + [regex]::Escape([string]$constraint.column) + '"'
+        if ($jpaEntity -notmatch [regex]::Escape([string]$constraint.name) -or $jpaEntity -notmatch $uniqueColumnPattern) {
+            Add-Error "${entity}JpaEntity is missing UNIQUE $($constraint.name) on $($constraint.column)"
         }
+    }
+    $nullableColumns = @($context.nullableColumns)
+    foreach ($column in $expectedColumns) {
+        $columnPattern = '@Column\(name\s*=\s*"' + [regex]::Escape([string]$column) + '"[^)]*nullable\s*=\s*(true|false)'
+        $columnMatch = [regex]::Match($jpaEntity, $columnPattern)
+        if (-not $columnMatch.Success) {
+            Add-Error "${entity}JpaEntity does not declare nullability for $column"
+        } else {
+            $expectedNullable = $column -in $nullableColumns
+            $actualNullable = $columnMatch.Groups[1].Value -eq 'true'
+            if ($expectedNullable -ne $actualNullable) { Add-Error "${entity}JpaEntity nullability differs for $column" }
+        }
+    }
+    foreach ($column in @($context.uuidColumns | Where-Object { $_ })) {
+        $uuidPattern = '@Column\(name\s*=\s*"' + [regex]::Escape([string]$column) + '"[^)]*columnDefinition\s*=\s*"char\(36\)"'
+        if ($jpaEntity -notmatch $uuidPattern) { Add-Error "${entity}JpaEntity must map $column as CHAR(36)" }
+    }
+    foreach ($column in @($context.textColumns | Where-Object { $_ })) {
+        $textPattern = '@Column\(name\s*=\s*"' + [regex]::Escape([string]$column) + '"[^)]*columnDefinition\s*=\s*"text"'
+        if ($jpaEntity -notmatch $textPattern) { Add-Error "${entity}JpaEntity must map $column as TEXT" }
+    }
+    if ($context.javaTypes) {
+        foreach ($javaType in $context.javaTypes.PSObject.Properties) {
+            $typePattern = '(?s)@Column\(name\s*=\s*"' + [regex]::Escape([string]$javaType.Name) + '"[^)]*\)\s*private\s+' + [regex]::Escape([string]$javaType.Value) + '\s+'
+            if ($jpaEntity -notmatch $typePattern) { Add-Error "${entity}JpaEntity must map $($javaType.Name) as $($javaType.Value)" }
+        }
+    }
+    if ($context.lengths) {
+        foreach ($length in $context.lengths.PSObject.Properties) {
+            $lengthPattern = '@Column\(name\s*=\s*"' + [regex]::Escape([string]$length.Name) + '"[^)]*length\s*=\s*' + [regex]::Escape([string]$length.Value) + '(?:\D|\))'
+            if ($jpaEntity -notmatch $lengthPattern) { Add-Error "${entity}JpaEntity length differs for $($length.Name)" }
+        }
+    }
+    foreach ($property in @($context.nullableReferenceProperties | Where-Object { $_ })) {
+        $nullSafePattern = 'request\.' + [regex]::Escape([string]$property) + '\(\)\s*==\s*null\s*\?\s*null\s*:'
+        if ($controller -notmatch $nullSafePattern) { Add-Error "${entity}Controller must preserve null for optional reference $property" }
     }
     if (-not [bool]$context.hasTimestamps -and $jpaEntity -match 'created_at|updated_at') {
         Add-Error "${entity}JpaEntity invents timestamps absent from SQL"
@@ -196,6 +238,10 @@ foreach ($context in $manifest.contexts) {
         $derivedQuerySuffix = $codeProperty.Substring(0, 1).ToUpperInvariant() + $codeProperty.Substring(1)
         if ($jpaRepository -notmatch "boolean\s+existsBy$([regex]::Escape($derivedQuerySuffix))\s*\(String\s+code\)") { Add-Error "${entity}JpaRepository must query the real property $codeProperty" }
         if ($adapter -notmatch 'boolean\s+existsByCode\s*\(') { Add-Error "${entity}RepositoryAdapter must implement existsByCode" }
+    } else {
+        $domainRepository = Get-Content -Raw -LiteralPath (Join-Path $ProjectRoot "domain/src/main/java/springboot/domain/$package/port/repository/${entity}Repository.java")
+        $jpaRepository = Get-Content -Raw -LiteralPath (Join-Path $ProjectRoot "infrastructure/src/main/java/springboot/infrastructure/$package/adapters/out/persistence/repositories/${entity}JpaRepository.java")
+        if ($domainRepository -match 'existsByCode' -or $jpaRepository -match 'existsByCode') { Add-Error "${entity} must not invent existsByCode without a code field" }
     }
 }
 

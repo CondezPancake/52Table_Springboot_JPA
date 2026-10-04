@@ -8,7 +8,7 @@ Last updated: 2026-10-04 (America/Bogota)
 |---:|---|---|
 | 1 | countries, state_regions, city_municipalities | Complete and verified |
 | 2 | document_types, genders, relationship_types, professional_types, studies | Complete and verified |
-| 3 | professionals, patients, contacts, phone_contacts | Pending |
+| 3 | professionals, patients, contacts, phone_contacts | Complete and verified |
 | 4 | email_contacts, patient_contacts, patient_allergies, professional_studies | Pending |
 | 5 | clinical_record_statuses, encounter_types, encounter_modalities, encounter_statuses, risk_levels | Pending |
 | 6 | treatment_statuses, treatment_goal_statuses, medication_routes, assessment_types, consent_types, diagnostic_systems | Pending |
@@ -30,7 +30,7 @@ Last updated: 2026-10-04 (America/Bogota)
 - Renamed the only boot class to `springboot.infrastructure.DemoApplication`, updated the infrastructure POM and VS Code launcher, and retained root package scanning.
 - Added the template's Spring configuration metadata, with matching environment-backed queue-delay and CORS properties but no queue behavior.
 - Restored `existsByCode` for the initial three contexts using their real JPA properties, without altering the non-unique SQL constraints.
-- Added `tools/structure-manifest.json` and `tools/verify-structure.ps1`; after block 2 the verifier passes for 8 contexts, 213 Java files, exact declaration types/packages, 7 beans per context, layer boundaries, SQL column sets, and 52 migration versions.
+- Added `tools/structure-manifest.json` and `tools/verify-structure.ps1`; after block 3 the verifier passes for 12 contexts, 317 Java files, exact declaration types/packages, 7 beans per context, layer boundaries, SQL columns, lengths, nullability, UUID/TEXT/DATE mappings, and 52 migration versions.
 - Maven wrapper 3.3.4 verified with `JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot`; Maven 3.9.16 runs on Java 21.0.12.1.
 - Copied all 52 original migrations once into infrastructure. Source/destination SHA-256 comparison reports 52 matches and zero mismatches; there is no template Country migration.
 - Implemented full Country-pattern contexts for `countries`, `state_regions`, and `city_municipalities`: 9 application files, 6 domain files, 8 infrastructure files, one common domain exception, and 2 equivalent tests per context.
@@ -40,15 +40,21 @@ Last updated: 2026-10-04 (America/Bogota)
 - `RelationshipType` correctly omits `createdAt`/`updatedAt` throughout domain, application, persistence, and mapper because V6 has no timestamp columns. The other four block-2 contexts preserve both timestamps.
 - `existsByCode` is present only for `DocumentType`, the only block-2 table with a code column. No code field or code query was invented for the other catalogs.
 - The generator now supports context selection, optional timestamps, named single-column UNIQUE constraints, and still refuses to overwrite existing files.
+- Implemented complete Country-pattern contexts for V9–V12: `Professional`, `Patient`, `Contact`, and `PhoneContact`, each with 9 application files, 6 domain files, 8 infrastructure files, its domain common exception, and 2 equivalent test classes.
+- Verified V9–V12 against SQL: FK values remain typed identifiers in domain and explicit `CHAR(36)` UUID columns in JPA; all six named UNIQUE constraints, string lengths, required/optional columns, `DATE`, and `TEXT` mappings match the migrations.
+- `Patient` preserves nullable middle/second names and nullable professional audit identifiers through requests, commands, domain, responses, controllers, JPA, and mapper. Its complex aggregate test also verifies restore-without-event and preservation of `createdAt` on update.
+- `Contact.updatedBy` and both patient audit FKs use null-safe REST and persistence conversions. No cascade or JPA relationship was introduced.
+- `PhoneContact` correctly omits timestamps because V12 defines none; its optional phone and required TEXT notes follow the SQL contract.
+- Extended the generator with nullable fields/references, `LocalDate`, TEXT column definitions, multiple named UNIQUE constraints, and null-safe UUID conversions, while retaining selective generation and overwrite protection.
 - Confirmed domain/application source contains no Spring, JPA, or Jakarta Validation imports. No legacy package, PostgreSQL setting, `create-drop`, TODO, or stub implementation remains in main source.
 - Confirmed the implementation plan has exactly 52 table mapping rows.
 
 ## Verification states
 
 - Compiled: yes. `mvnw.cmd clean verify` succeeded for the full four-project reactor with Maven 3.9.16 on JDK 21.0.12.1 and Java release 21.
-- Tests executed: yes. The block-2 clean verification ran 28 tests (12 domain and 16 application), with zero failures, errors, or skips.
+- Tests executed: yes. The block-3 clean verification ran 42 tests (18 domain and 24 application), with zero failures, errors, or skips.
 - Persistence verified: no. There is no `.env`, `DB_URL`, MySQL client, Docker command, or confirmed dedicated MySQL database in this environment. Flyway/Hibernate startup was intentionally not pointed at the default or an unknown shared database.
 
 ## Next action
 
-In the next requested implementation execution, begin block 3: `professionals`, `patients`, `contacts`, and `phone_contacts`. Treat `patients` as the complex validation case after its catalog and professional dependencies, then extend the manifest and run the structural verifier before `clean verify`.
+In the next requested implementation execution, begin block 4: `email_contacts`, `patient_contacts`, `patient_allergies`, and `professional_studies`. Extend the manifest and run the structural verifier before `clean verify`.

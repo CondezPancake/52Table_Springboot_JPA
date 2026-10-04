@@ -67,7 +67,47 @@
     {"table": "genders", "entity": "Gender", "package": "gender", "endpoint": "/api/genders", "hasTimestamps": true, "uniqueConstraint": "uk_genders_description", "uniqueColumn": "description", "expectedColumns": ["id", "description", "created_at", "updated_at"]},
     {"table": "relationship_types", "entity": "RelationshipType", "package": "relationshiptype", "endpoint": "/api/relationship-types", "hasTimestamps": false, "uniqueConstraint": "uk_relationship_types_description", "uniqueColumn": "description", "expectedColumns": ["id", "description"]},
     {"table": "professional_types", "entity": "ProfessionalType", "package": "professionaltype", "endpoint": "/api/professional-types", "hasTimestamps": true, "uniqueConstraint": "uk_professional_types_name", "uniqueColumn": "name", "expectedColumns": ["id", "name", "created_at", "updated_at"]},
-    {"table": "studies", "entity": "Study", "package": "study", "endpoint": "/api/studies", "hasTimestamps": true, "expectedColumns": ["id", "name", "created_at", "updated_at"]}
+    {"table": "studies", "entity": "Study", "package": "study", "endpoint": "/api/studies", "hasTimestamps": true, "expectedColumns": ["id", "name", "created_at", "updated_at"]},
+    {
+      "table": "professionals", "entity": "Professional", "package": "professional", "endpoint": "/api/professionals", "hasTimestamps": true,
+      "expectedColumns": ["id", "document_type_id", "document_number", "first_name", "last_name", "professional_type", "license_number", "active", "city_id", "created_at", "updated_at"],
+      "lengths": {"id": 36, "document_type_id": 36, "document_number": 30, "first_name": 60, "last_name": 60, "professional_type": 36, "license_number": 100, "city_id": 36},
+      "uuidColumns": ["id", "document_type_id", "professional_type", "city_id"],
+      "uniqueConstraints": [
+        {"name": "uk_professionals_document_number", "column": "document_number"},
+        {"name": "uk_professionals_first_name", "column": "first_name"},
+        {"name": "uk_professionals_last_name", "column": "last_name"},
+        {"name": "uk_professionals_license_number", "column": "license_number"}
+      ]
+    },
+    {
+      "table": "patients", "entity": "Patient", "package": "patient", "endpoint": "/api/patients", "hasTimestamps": true,
+      "expectedColumns": ["id", "document_type_id", "document_number", "first_name", "middle_name", "last_name", "second_last_name", "birth_date", "biological_sex_id", "gender_identity", "email", "phone", "address", "active", "created_at", "created_by", "updated_at", "updated_by", "city_id"],
+      "lengths": {"id": 36, "document_type_id": 36, "document_number": 30, "first_name": 50, "middle_name": 50, "last_name": 50, "second_last_name": 50, "biological_sex_id": 36, "gender_identity": 36, "email": 150, "phone": 30, "address": 250, "created_by": 36, "updated_by": 36, "city_id": 36},
+      "nullableColumns": ["middle_name", "second_last_name", "created_by", "updated_by"],
+      "nullableReferenceProperties": ["createdBy", "updatedBy"],
+      "uuidColumns": ["id", "document_type_id", "biological_sex_id", "gender_identity", "created_by", "updated_by", "city_id"],
+      "javaTypes": {"birth_date": "LocalDate"},
+      "uniqueConstraints": [{"name": "uk_patients_email", "column": "email"}]
+    },
+    {
+      "table": "contacts", "entity": "Contact", "package": "contact", "endpoint": "/api/contacts", "hasTimestamps": true,
+      "expectedColumns": ["id", "full_name", "email", "notes", "city_id", "created_at", "created_by", "updated_at", "updated_by"],
+      "lengths": {"id": 36, "full_name": 200, "email": 150, "city_id": 36, "created_by": 36, "updated_by": 36},
+      "nullableColumns": ["updated_by"],
+      "nullableReferenceProperties": ["updatedBy"],
+      "uuidColumns": ["id", "city_id", "created_by", "updated_by"],
+      "textColumns": ["notes"],
+      "uniqueConstraints": [{"name": "uk_contacts_email", "column": "email"}]
+    },
+    {
+      "table": "phone_contacts", "entity": "PhoneContact", "package": "phonecontact", "endpoint": "/api/phone-contacts", "hasTimestamps": false,
+      "expectedColumns": ["id", "contact_id", "phone", "notes"],
+      "lengths": {"id": 36, "contact_id": 36, "phone": 30},
+      "nullableColumns": ["phone"],
+      "uuidColumns": ["id", "contact_id"],
+      "textColumns": ["notes"]
+    }
   ],
   "requiredResources": [
     "infrastructure/src/main/resources/application.yml",
