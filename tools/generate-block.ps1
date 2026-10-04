@@ -415,6 +415,41 @@ $Contexts = @(
             (Field 'endDate' 'LocalDate' 'end_date' 0 'java.time.LocalDate.of(2026, 6, 10)'),
             (Field 'treatmentStatusId' 'TreatmentStatusId' 'treatment_status_id' 36 'TreatmentStatusId.generate()' 'treatmentstatus' 'TreatmentStatus')
         )
+    },
+    [pscustomobject]@{
+        Entity = 'TreatmentGoal'; Package = 'treatmentgoal'; Table = 'treatment_goals'; Endpoint = 'treatment-goals'; HasTimestamps = $true
+        Fields = @(
+            (Field 'treatmentPlanId' 'TreatmentPlanId' 'treatment_plan_id' 36 'TreatmentPlanId.generate()' 'treatmentplan' 'TreatmentPlan'),
+            (Field 'description' 'String' 'description' 0 '"Reduce symptoms"' $null $null $false 'text'),
+            (Field 'targetDate' 'LocalDate' 'target_date' 0 'java.time.LocalDate.of(2026, 6, 10)'),
+            (Field 'completedAt' 'LocalDateTime' 'completed_at' 0 'java.time.LocalDateTime.of(2026, 6, 10, 9, 0)'),
+            (Field 'notes' 'String' 'notes' 0 '"Progress notes"' $null $null $false 'text'),
+            (Field 'treatmentGoalStatusId' 'TreatmentGoalStatusId' 'treatment_goal_id' 36 'TreatmentGoalStatusId.generate()' 'treatmentgoalstatus' 'TreatmentGoalStatus')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'ConversationStatus'; Package = 'conversationstatus'; Table = 'conversations_statuses'; Endpoint = 'conversation-statuses'; HasTimestamps = $true
+        Fields = @(
+            (Field 'nameStatus' 'String' 'name_status' 50 '"Open"')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'Priority'; Package = 'priority'; Table = 'priorities'; Endpoint = 'priorities'; HasTimestamps = $true
+        Fields = @(
+            (Field 'namePriority' 'String' 'name_priority' 50 '"High"')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'SenderType'; Package = 'sendertype'; Table = 'sender_types'; Endpoint = 'sender-types'; HasTimestamps = $true
+        Fields = @(
+            (Field 'nameType' 'String' 'name_type' 50 '"Patient"')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'MessageType'; Package = 'messagetype'; Table = 'message_types'; Endpoint = 'message-types'; HasTimestamps = $true
+        Fields = @(
+            (Field 'nameType' 'String' 'name_type' 50 '"Text"')
+        )
     }
 )
 

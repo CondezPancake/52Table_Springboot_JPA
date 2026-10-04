@@ -284,6 +284,38 @@
       "uuidColumns": ["id", "encounter_id", "professional_id", "treatment_status_id"],
       "textColumns": ["description"],
       "javaTypes": {"start_date": "LocalDate", "end_date": "LocalDate"}
+    },
+    {
+      "table": "treatment_goals", "entity": "TreatmentGoal", "package": "treatmentgoal", "endpoint": "/api/treatment-goals", "hasTimestamps": true,
+      "expectedColumns": ["id", "treatment_plan_id", "description", "target_date", "completed_at", "notes", "treatment_goal_id", "created_at", "updated_at"],
+      "lengths": {"id": 36, "treatment_plan_id": 36, "treatment_goal_id": 36},
+      "uuidColumns": ["id", "treatment_plan_id", "treatment_goal_id"],
+      "textColumns": ["description", "notes"],
+      "javaTypes": {"target_date": "LocalDate", "completed_at": "LocalDateTime"}
+    },
+    {
+      "table": "conversations_statuses", "entity": "ConversationStatus", "package": "conversationstatus", "endpoint": "/api/conversation-statuses", "hasTimestamps": true,
+      "expectedColumns": ["id", "name_status", "created_at", "updated_at"],
+      "lengths": {"id": 36, "name_status": 50},
+      "uuidColumns": ["id"]
+    },
+    {
+      "table": "priorities", "entity": "Priority", "package": "priority", "endpoint": "/api/priorities", "hasTimestamps": true,
+      "expectedColumns": ["id", "name_priority", "created_at", "updated_at"],
+      "lengths": {"id": 36, "name_priority": 50},
+      "uuidColumns": ["id"]
+    },
+    {
+      "table": "sender_types", "entity": "SenderType", "package": "sendertype", "endpoint": "/api/sender-types", "hasTimestamps": true,
+      "expectedColumns": ["id", "name_type", "created_at", "updated_at"],
+      "lengths": {"id": 36, "name_type": 50},
+      "uuidColumns": ["id"]
+    },
+    {
+      "table": "message_types", "entity": "MessageType", "package": "messagetype", "endpoint": "/api/message-types", "hasTimestamps": true,
+      "expectedColumns": ["id", "name_type", "created_at", "updated_at"],
+      "lengths": {"id": 36, "name_type": 50},
+      "uuidColumns": ["id"]
     }
   ],
   "requiredResources": [
