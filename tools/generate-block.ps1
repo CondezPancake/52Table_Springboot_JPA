@@ -450,6 +450,36 @@ $Contexts = @(
         Fields = @(
             (Field 'nameType' 'String' 'name_type' 50 '"Text"')
         )
+    },
+    [pscustomobject]@{
+        Entity = 'ChatConversation'; Package = 'chatconversation'; Table = 'chat_conversations'; Endpoint = 'chat-conversations'; HasTimestamps = $true
+        Fields = @(
+            (Field 'conversationStatusId' 'ConversationStatusId' 'conversation_status_id' 36 'ConversationStatusId.generate()' 'conversationstatus' 'ConversationStatus'),
+            (Field 'priorityId' 'PriorityId' 'priority_id' 36 'PriorityId.generate()' 'priority' 'Priority'),
+            (Field 'lastMessageAt' 'LocalDateTime' 'last_message_at' 0 'null' $null $null $true),
+            (Field 'closed' 'Boolean' 'closed' 0 'null' $null $null $true),
+            (Field 'closedAt' 'LocalDateTime' 'closed_at' 0 'null' $null $null $true),
+            (Field 'closedBy' 'UUID' 'closed_by' 36 'null' $null $null $true)
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'ChatParticipant'; Package = 'chatparticipant'; Table = 'chat_participants'; Endpoint = 'chat-participants'; HasTimestamps = $true
+        Fields = @(
+            (Field 'conversationId' 'ChatConversationId' 'conversation_id' 36 'ChatConversationId.generate()' 'chatconversation' 'ChatConversation'),
+            (Field 'participantTypeId' 'SenderTypeId' 'participant_type_id' 36 'SenderTypeId.generate()' 'sendertype' 'SenderType'),
+            (Field 'patientId' 'PatientId' 'patient_id' 36 'null' 'patient' 'Patient' $true),
+            (Field 'professionalId' 'ProfessionalId' 'professional_id' 36 'null' 'professional' 'Professional' $true)
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'ChatMessage'; Package = 'chatmessage'; Table = 'chat_messages'; Endpoint = 'chat-messages'; HasTimestamps = $false; HasCreatedAt = $true; HasUpdatedAt = $false
+        Fields = @(
+            (Field 'conversationId' 'ChatConversationId' 'conversation_id' 36 'ChatConversationId.generate()' 'chatconversation' 'ChatConversation'),
+            (Field 'messageTypeId' 'MessageTypeId' 'message_type_id' 36 'MessageTypeId.generate()' 'messagetype' 'MessageType'),
+            (Field 'participantId' 'ChatParticipantId' 'participant_id' 36 'ChatParticipantId.generate()' 'chatparticipant' 'ChatParticipant'),
+            (Field 'content' 'String' 'content' 0 '"{\"text\":\"Hello\"}"' $null $null $false 'json'),
+            (Field 'metadata' 'String' 'metadata' 0 '"{}"' $null $null $false 'json')
+        )
     }
 )
 
@@ -523,6 +553,7 @@ function Type-Imports($context, [string[]]$exclude = @()) {
     $imports = @()
     if ($context.Fields.Type -contains 'LocalDate' -and 'LocalDate' -notin $exclude) { $imports += 'import java.time.LocalDate;' }
     if ($context.Fields.Type -contains 'LocalDateTime' -and 'LocalDateTime' -notin $exclude) { $imports += 'import java.time.LocalDateTime;' }
+    if ($context.Fields.Type -contains 'UUID' -and 'UUID' -notin $exclude) { $imports += 'import java.util.UUID;' }
     $imports -join "`n"
 }
 function Unique-Constraints($context) {
@@ -779,7 +810,9 @@ $checks
     if (Has-UpdatedAt $context) { $responseFields += 'LocalDateTime updatedAt' }
     $responseFieldsText = $responseFields -join ",`n        "
     $responseTimeImport = if (Has-TechnicalTimestamp $context) { 'import java.time.LocalDateTime;' } else { '' }
-    $responseTypeImports = if (Has-TechnicalTimestamp $context) { Type-Imports $context @('LocalDateTime') } else { Type-Imports $context }
+    $responseTypeExclusions = @('UUID')
+    if (Has-TechnicalTimestamp $context) { $responseTypeExclusions += 'LocalDateTime' }
+    $responseTypeImports = Type-Imports $context $responseTypeExclusions
     Write-Generated "application/src/main/java/springboot/application/$pkg/dto/${entity}Response.java" @"
 package springboot.application.$pkg.dto;
 
@@ -918,7 +951,7 @@ public class Delete${entity}UseCase {
 
 function Generate-Infrastructure($context) {
     $entity = $context.Entity; $pkg = $context.Package; $refs = Ref-Imports $context
-    $typeImports = Type-Imports $context
+    $typeImports = Type-Imports $context @('UUID')
     $codeField = Code-Field $context
     $jpaExistsByCode = if ($null -ne $codeField) { "    boolean existsBy$(Cap $codeField.Name)(String code);" } else { '' }
     $adapterExistsByCode = if ($null -ne $codeField) { "    @Override public boolean existsByCode(String code) { return jpaRepository.existsBy$(Cap $codeField.Name)(code); }" } else { '' }
@@ -930,7 +963,7 @@ function Generate-Infrastructure($context) {
         $annotationText = if ($annotations.Count -gt 0) { ($annotations -join "`n        ") + "`n        " } else { '' }
         "$annotationText$type $($_.Name)"
     }) -join ",`n`n        "
-    $uuidImport = if ($context.Fields | Where-Object { Is-Ref $_ }) { "import java.util.UUID;`n`n" } else { '' }
+    $uuidImport = if ($context.Fields | Where-Object { (Is-Ref $_) -or $_.Type -eq 'UUID' }) { "import java.util.UUID;`n`n" } else { '' }
     foreach ($action in @('Create', 'Update')) {
         Write-Generated "infrastructure/src/main/java/springboot/infrastructure/$pkg/adapters/in/rest/dtos/${action}${entity}Request.java" @"
 package springboot.infrastructure.$pkg.adapters.in.rest.dtos;
@@ -1034,11 +1067,12 @@ public class ${entity}Controller {
 "@
     $columns = ($context.Fields | ForEach-Object {
         $nullable = if (Is-Nullable $_) { 'true' } else { 'false' }
-        if (Is-Ref $_) { "    @JdbcTypeCode(SqlTypes.CHAR)`n    @Column(name = `"$($_.Column)`", nullable = $nullable, length = 36, columnDefinition = `"char(36)`")`n    private UUID $($_.Name);" }
+        if ((Is-Ref $_) -or $_.Type -eq 'UUID') { "    @JdbcTypeCode(SqlTypes.CHAR)`n    @Column(name = `"$($_.Column)`", nullable = $nullable, length = 36, columnDefinition = `"char(36)`")`n    private UUID $($_.Name);" }
         else {
             $length = if ($_.Length -gt 0) { ", length = $($_.Length)" } else { '' }
             $columnDefinition = if ($_.ColumnDefinition) { ", columnDefinition = `"$($_.ColumnDefinition)`"" } else { '' }
-            "    @Column(name = `"$($_.Column)`", nullable = $nullable$length$columnDefinition)`n    private $($_.Type) $($_.Name);"
+            $jdbcType = if ($_.ColumnDefinition -eq 'json') { "    @JdbcTypeCode(SqlTypes.JSON)`n" } else { '' }
+            "$jdbcType    @Column(name = `"$($_.Column)`", nullable = $nullable$length$columnDefinition)`n    private $($_.Type) $($_.Name);"
         }
     }) -join "`n`n"
     $ctorFields = @('UUID id') + ($context.Fields | ForEach-Object { "$(Persistence-Type $_) $($_.Name)" })
@@ -1051,7 +1085,9 @@ public class ${entity}Controller {
     $ctorAssign = $ctorAssignments -join "`n"
     $accessors = ($context.Fields | ForEach-Object { $pt = Persistence-Type $_; $cap = Cap $_.Name; $getter = Getter $_; "    public $pt $getter() {`n        return $($_.Name);`n    }`n`n    public void set$cap($pt $($_.Name)) {`n        this.$($_.Name) = $($_.Name);`n    }" }) -join "`n`n"
     $timeImport = if (Has-TechnicalTimestamp $context) { 'import java.time.LocalDateTime;' } else { '' }
-    $entityTypeImports = if (Has-TechnicalTimestamp $context) { Type-Imports $context @('LocalDateTime') } else { Type-Imports $context }
+    $entityTypeExclusions = @('UUID')
+    if (Has-TechnicalTimestamp $context) { $entityTypeExclusions += 'LocalDateTime' }
+    $entityTypeImports = Type-Imports $context $entityTypeExclusions
     $timestampColumns = @()
     if (Has-CreatedAt $context) { $timestampColumns += @"
     @Column(name = "created_at", nullable = false)

@@ -210,6 +210,10 @@ foreach ($context in $manifest.contexts) {
         $textPattern = '@Column\(name\s*=\s*"' + [regex]::Escape([string]$column) + '"[^)]*columnDefinition\s*=\s*"text"'
         if ($jpaEntity -notmatch $textPattern) { Add-Error "${entity}JpaEntity must map $column as TEXT" }
     }
+    foreach ($column in @($context.jsonColumns | Where-Object { $_ })) {
+        $jsonPattern = '(?s)@JdbcTypeCode\(SqlTypes\.JSON\)\s*@Column\(name\s*=\s*"' + [regex]::Escape([string]$column) + '"[^)]*columnDefinition\s*=\s*"json"'
+        if ($jpaEntity -notmatch $jsonPattern) { Add-Error "${entity}JpaEntity must map $column as JSON" }
+    }
     if ($context.javaTypes) {
         foreach ($javaType in $context.javaTypes.PSObject.Properties) {
             $typePattern = '(?s)@Column\(name\s*=\s*"' + [regex]::Escape([string]$javaType.Name) + '"[^)]*\)\s*private\s+' + [regex]::Escape([string]$javaType.Value) + '\s+'

@@ -316,6 +316,29 @@
       "expectedColumns": ["id", "name_type", "created_at", "updated_at"],
       "lengths": {"id": 36, "name_type": 50},
       "uuidColumns": ["id"]
+    },
+    {
+      "table": "chat_conversations", "entity": "ChatConversation", "package": "chatconversation", "endpoint": "/api/chat-conversations", "hasTimestamps": true,
+      "expectedColumns": ["id", "conversation_status_id", "priority_id", "last_message_at", "closed", "closed_at", "closed_by", "created_at", "updated_at"],
+      "lengths": {"id": 36, "conversation_status_id": 36, "priority_id": 36, "closed_by": 36},
+      "nullableColumns": ["last_message_at", "closed", "closed_at", "closed_by"],
+      "uuidColumns": ["id", "conversation_status_id", "priority_id", "closed_by"],
+      "javaTypes": {"last_message_at": "LocalDateTime", "closed": "Boolean", "closed_at": "LocalDateTime"}
+    },
+    {
+      "table": "chat_participants", "entity": "ChatParticipant", "package": "chatparticipant", "endpoint": "/api/chat-participants", "hasTimestamps": true,
+      "expectedColumns": ["id", "conversation_id", "participant_type_id", "patient_id", "professional_id", "created_at", "updated_at"],
+      "lengths": {"id": 36, "conversation_id": 36, "participant_type_id": 36, "patient_id": 36, "professional_id": 36},
+      "nullableColumns": ["patient_id", "professional_id"],
+      "nullableReferenceProperties": ["patientId", "professionalId"],
+      "uuidColumns": ["id", "conversation_id", "participant_type_id", "patient_id", "professional_id"]
+    },
+    {
+      "table": "chat_messages", "entity": "ChatMessage", "package": "chatmessage", "endpoint": "/api/chat-messages", "hasTimestamps": false, "hasCreatedAt": true, "hasUpdatedAt": false,
+      "expectedColumns": ["id", "conversation_id", "message_type_id", "participant_id", "content", "metadata", "created_at"],
+      "lengths": {"id": 36, "conversation_id": 36, "message_type_id": 36, "participant_id": 36},
+      "uuidColumns": ["id", "conversation_id", "message_type_id", "participant_id"],
+      "jsonColumns": ["content", "metadata"]
     }
   ],
   "requiredResources": [
