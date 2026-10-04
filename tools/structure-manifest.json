@@ -60,9 +60,14 @@
     {"path": "config/{entity}BeansConfig.java", "name": "{entity}BeansConfig", "kind": "class"}
   ],
   "contexts": [
-    {"table": "countries", "entity": "Country", "package": "country", "endpoint": "/api/countries", "codeProperty": "codeCountry"},
-    {"table": "state_regions", "entity": "StateRegion", "package": "stateregion", "endpoint": "/api/state-regions", "codeProperty": "codeRegion"},
-    {"table": "city_municipalities", "entity": "CityMunicipality", "package": "citymunicipality", "endpoint": "/api/city-municipalities", "codeProperty": "codeCity"}
+    {"table": "countries", "entity": "Country", "package": "country", "endpoint": "/api/countries", "codeProperty": "codeCountry", "hasTimestamps": true, "expectedColumns": ["id", "name_country", "code_country", "description", "is_active", "telephone_prefix", "created_at", "updated_at"]},
+    {"table": "state_regions", "entity": "StateRegion", "package": "stateregion", "endpoint": "/api/state-regions", "codeProperty": "codeRegion", "hasTimestamps": true, "expectedColumns": ["id", "name_region", "code_region", "description", "is_active", "country_id", "created_at", "updated_at"]},
+    {"table": "city_municipalities", "entity": "CityMunicipality", "package": "citymunicipality", "endpoint": "/api/city-municipalities", "codeProperty": "codeCity", "hasTimestamps": true, "expectedColumns": ["id", "name_city", "code_city", "description", "is_active", "region_id", "created_at", "updated_at"]},
+    {"table": "document_types", "entity": "DocumentType", "package": "documenttype", "endpoint": "/api/document-types", "codeProperty": "code", "hasTimestamps": true, "uniqueConstraint": "uk_document_types_code", "uniqueColumn": "code", "expectedColumns": ["id", "code", "name", "active", "created_at", "updated_at"]},
+    {"table": "genders", "entity": "Gender", "package": "gender", "endpoint": "/api/genders", "hasTimestamps": true, "uniqueConstraint": "uk_genders_description", "uniqueColumn": "description", "expectedColumns": ["id", "description", "created_at", "updated_at"]},
+    {"table": "relationship_types", "entity": "RelationshipType", "package": "relationshiptype", "endpoint": "/api/relationship-types", "hasTimestamps": false, "uniqueConstraint": "uk_relationship_types_description", "uniqueColumn": "description", "expectedColumns": ["id", "description"]},
+    {"table": "professional_types", "entity": "ProfessionalType", "package": "professionaltype", "endpoint": "/api/professional-types", "hasTimestamps": true, "uniqueConstraint": "uk_professional_types_name", "uniqueColumn": "name", "expectedColumns": ["id", "name", "created_at", "updated_at"]},
+    {"table": "studies", "entity": "Study", "package": "study", "endpoint": "/api/studies", "hasTimestamps": true, "expectedColumns": ["id", "name", "created_at", "updated_at"]}
   ],
   "requiredResources": [
     "infrastructure/src/main/resources/application.yml",

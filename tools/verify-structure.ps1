@@ -171,11 +171,30 @@ foreach ($context in $manifest.contexts) {
     $adapter = Get-Content -Raw -LiteralPath $adapterPath
     if ($adapter -notmatch 'deleteById\s*\(') { Add-Error "${entity}RepositoryAdapter must delete through deleteById" }
 
+    $jpaEntityPath = Join-Path $ProjectRoot "infrastructure/src/main/java/springboot/infrastructure/$package/adapters/out/persistence/entity/${entity}JpaEntity.java"
+    $jpaEntity = Get-Content -Raw -LiteralPath $jpaEntityPath
+    $mappedColumns = @([regex]::Matches($jpaEntity, '@Column\(name\s*=\s*"([^"]+)"') | ForEach-Object { $_.Groups[1].Value } | Sort-Object)
+    $expectedColumns = @($context.expectedColumns | Sort-Object)
+    if (@(Compare-Object -ReferenceObject $expectedColumns -DifferenceObject $mappedColumns).Count -ne 0) {
+        Add-Error "${entity}JpaEntity columns differ from the manifest/SQL contract"
+    }
+    if ($context.uniqueConstraint) {
+        $uniqueColumnPattern = 'columnNames\s*=\s*"' + [regex]::Escape([string]$context.uniqueColumn) + '"'
+        if ($jpaEntity -notmatch [regex]::Escape([string]$context.uniqueConstraint) -or $jpaEntity -notmatch $uniqueColumnPattern) {
+            Add-Error "${entity}JpaEntity is missing UNIQUE $($context.uniqueConstraint) on $($context.uniqueColumn)"
+        }
+    }
+    if (-not [bool]$context.hasTimestamps -and $jpaEntity -match 'created_at|updated_at') {
+        Add-Error "${entity}JpaEntity invents timestamps absent from SQL"
+    }
+
     if ($context.codeProperty) {
         $domainRepository = Get-Content -Raw -LiteralPath (Join-Path $ProjectRoot "domain/src/main/java/springboot/domain/$package/port/repository/${entity}Repository.java")
         $jpaRepository = Get-Content -Raw -LiteralPath (Join-Path $ProjectRoot "infrastructure/src/main/java/springboot/infrastructure/$package/adapters/out/persistence/repositories/${entity}JpaRepository.java")
         if ($domainRepository -notmatch 'boolean\s+existsByCode\s*\(String\s+code\)') { Add-Error "${entity}Repository must expose existsByCode" }
-        if ($jpaRepository -notmatch "boolean\s+existsBy$([regex]::Escape($context.codeProperty))\s*\(String\s+code\)") { Add-Error "${entity}JpaRepository must query the real property $($context.codeProperty)" }
+        $codeProperty = [string]$context.codeProperty
+        $derivedQuerySuffix = $codeProperty.Substring(0, 1).ToUpperInvariant() + $codeProperty.Substring(1)
+        if ($jpaRepository -notmatch "boolean\s+existsBy$([regex]::Escape($derivedQuerySuffix))\s*\(String\s+code\)") { Add-Error "${entity}JpaRepository must query the real property $codeProperty" }
         if ($adapter -notmatch 'boolean\s+existsByCode\s*\(') { Add-Error "${entity}RepositoryAdapter must implement existsByCode" }
     }
 }

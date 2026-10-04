@@ -79,6 +79,8 @@ The ordering is dependency-driven, so migration numbers appear out of numerical 
 - PostgreSQL dependencies, dialect, schema placeholders, and `create-drop` are replaced by MySQL 8, Flyway enabled, and `ddl-auto: validate`.
 - Country fields and lengths are replaced by the real V1 columns; StateRegion and CityMunicipality follow V2/V3 including their FK identifiers and timestamps.
 - The template's `existsByCode` is preserved for V1–V3 because all three tables have a real code column. JPA derived-query names use the actual properties (`codeCountry`, `codeRegion`, and `codeCity`); this does not add a UNIQUE constraint absent from SQL.
+- In block 2, `existsByCode` is reproduced only for `DocumentType`; `Gender`, `RelationshipType`, `ProfessionalType`, and `Study` have no code column. Their actual named UNIQUE constraints are mapped without inventing repository code queries.
+- V6 `relationship_types` has no timestamp columns, so its aggregate, response, JPA entity, and mapper omit `createdAt` and `updatedAt`. V4, V5, V7, and V8 retain both timestamps.
 - JPA UUIDs use Hibernate's character JDBC type plus explicit `CHAR(36)` column definitions; the template's unqualified UUID mapping is not compatible with the supplied MySQL DDL.
 - Request validation enforces SQL nullability and maximum lengths. It does not invent `NOT BLANK` semantics where SQL only declares `NOT NULL`.
 - Java version declarations are removed from child POMs and centralized at Java 21. Surefire is pinned because the BOM alone does not provide plugin management for the template's JUnit 5 tests.
@@ -92,3 +94,4 @@ The ordering is dependency-driven, so migration numbers appear out of numerical 
 - Shared bases and `DemoApplication` exist once. Packages must match their paths, declaration kinds and essential inheritance must match the manifest, and fully qualified names must not be duplicated.
 - Domain and application remain free of Spring, JPA, and Jakarta Validation imports.
 - Run `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\verify-structure.ps1` before Maven verification for every future block.
+- Invoke `tools/generate-block.ps1` with `-ContextPackages` for only the pending packages. The generator rejects unknown packages and existing destinations, supports tables without timestamps, and maps declared single-column UNIQUE constraints by name.
