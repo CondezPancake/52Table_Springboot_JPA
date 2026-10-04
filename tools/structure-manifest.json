@@ -369,6 +369,33 @@
       "expectedColumns": ["id", "name_status", "created_at", "updated_at"],
       "lengths": {"id": 36, "name_status": 50},
       "uuidColumns": ["id"]
+    },
+    {
+      "table": "chat_ai_runs", "entity": "ChatAiRun", "package": "chatairun", "endpoint": "/api/chat-ai-runs", "hasTimestamps": true,
+      "expectedColumns": ["id", "conversation_id", "message_id", "model_id", "ai_run_status_id", "created_at", "updated_at"],
+      "lengths": {"id": 36, "conversation_id": 36, "message_id": 36, "model_id": 36, "ai_run_status_id": 36},
+      "uuidColumns": ["id", "conversation_id", "message_id", "model_id", "ai_run_status_id"]
+    },
+    {
+      "table": "chat_ai_run_metrics", "entity": "ChatAiRunMetric", "package": "chatairunmetric", "endpoint": "/api/chat-ai-run-metrics", "hasTimestamps": false, "hasCreatedAt": true, "hasUpdatedAt": false,
+      "expectedColumns": ["id", "ai_run_id", "prompt_tokens", "completion_tokens", "total_tokens", "cost", "created_at"],
+      "lengths": {"id": 36, "ai_run_id": 36},
+      "uuidColumns": ["id", "ai_run_id"],
+      "javaTypes": {"prompt_tokens": "int", "completion_tokens": "int", "total_tokens": "int", "cost": "BigDecimal"},
+      "decimalColumns": [{"column": "cost", "precision": 10, "scale": 6}]
+    },
+    {
+      "table": "chat_ai_run_errors", "entity": "ChatAiRunError", "package": "chatairunerror", "endpoint": "/api/chat-ai-run-errors", "hasTimestamps": false, "hasCreatedAt": true, "hasUpdatedAt": false,
+      "expectedColumns": ["id", "ai_run_id", "error_message", "error_code", "provider_error_id", "created_at"],
+      "lengths": {"id": 36, "ai_run_id": 36, "error_code": 80, "provider_error_id": 120},
+      "uuidColumns": ["id", "ai_run_id"],
+      "textColumns": ["error_message"]
+    },
+    {
+      "table": "escalations_statuses", "entity": "EscalationStatus", "package": "escalationstatus", "endpoint": "/api/escalation-statuses", "hasTimestamps": true,
+      "expectedColumns": ["id", "name_status", "created_at", "updated_at"],
+      "lengths": {"id": 36, "name_status": 50},
+      "uuidColumns": ["id"]
     }
   ],
   "requiredResources": [

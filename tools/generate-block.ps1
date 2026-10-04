@@ -517,6 +517,40 @@ $Contexts = @(
         Fields = @(
             (Field 'nameStatus' 'String' 'name_status' 50 '"Completed"')
         )
+    },
+    [pscustomobject]@{
+        Entity = 'ChatAiRun'; Package = 'chatairun'; Table = 'chat_ai_runs'; Endpoint = 'chat-ai-runs'; HasTimestamps = $true
+        Fields = @(
+            (Field 'conversationId' 'ChatConversationId' 'conversation_id' 36 'ChatConversationId.generate()' 'chatconversation' 'ChatConversation'),
+            (Field 'messageId' 'ChatMessageId' 'message_id' 36 'ChatMessageId.generate()' 'chatmessage' 'ChatMessage'),
+            (Field 'modelId' 'AiModelId' 'model_id' 36 'AiModelId.generate()' 'aimodel' 'AiModel'),
+            (Field 'aiRunStatusId' 'AiRunStatusId' 'ai_run_status_id' 36 'AiRunStatusId.generate()' 'airunstatus' 'AiRunStatus')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'ChatAiRunMetric'; Package = 'chatairunmetric'; Table = 'chat_ai_run_metrics'; Endpoint = 'chat-ai-run-metrics'; HasTimestamps = $false; HasCreatedAt = $true; HasUpdatedAt = $false
+        Fields = @(
+            (Field 'aiRunId' 'ChatAiRunId' 'ai_run_id' 36 'ChatAiRunId.generate()' 'chatairun' 'ChatAiRun'),
+            (Field 'promptTokens' 'int' 'prompt_tokens' 0 '100'),
+            (Field 'completionTokens' 'int' 'completion_tokens' 0 '50'),
+            (Field 'totalTokens' 'int' 'total_tokens' 0 '150'),
+            (Field 'cost' 'BigDecimal' 'cost' 0 'new java.math.BigDecimal("0.001500")' $null $null $false $null 10 6)
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'ChatAiRunError'; Package = 'chatairunerror'; Table = 'chat_ai_run_errors'; Endpoint = 'chat-ai-run-errors'; HasTimestamps = $false; HasCreatedAt = $true; HasUpdatedAt = $false
+        Fields = @(
+            (Field 'aiRunId' 'ChatAiRunId' 'ai_run_id' 36 'ChatAiRunId.generate()' 'chatairun' 'ChatAiRun'),
+            (Field 'errorMessage' 'String' 'error_message' 0 '"Provider request failed"' $null $null $false 'text'),
+            (Field 'errorCode' 'String' 'error_code' 80 '"PROVIDER_ERROR"'),
+            (Field 'providerErrorId' 'String' 'provider_error_id' 120 '"provider-error-001"')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'EscalationStatus'; Package = 'escalationstatus'; Table = 'escalations_statuses'; Endpoint = 'escalation-statuses'; HasTimestamps = $true
+        Fields = @(
+            (Field 'nameStatus' 'String' 'name_status' 50 '"Open"')
+        )
     }
 )
 
