@@ -348,6 +348,73 @@ $Contexts = @(
             (Field 'createdBy' 'ProfessionalId' 'created_by' 36 'ProfessionalId.generate()' 'professional' 'Professional'),
             (Field 'updatedBy' 'ProfessionalId' 'updated_by' 36 'ProfessionalId.generate()' 'professional' 'Professional')
         )
+    },
+    [pscustomobject]@{
+        Entity = 'RiskAssessment'; Package = 'riskassessment'; Table = 'risk_assessments'; Endpoint = 'risk-assessments'; HasTimestamps = $false
+        Fields = @(
+            (Field 'encounterId' 'EncounterId' 'encounter_id' 36 'EncounterId.generate()' 'encounter' 'Encounter'),
+            (Field 'riskLevelId' 'RiskLevelId' 'risk_level_id' 36 'RiskLevelId.generate()' 'risklevel' 'RiskLevel'),
+            (Field 'suicidalIdeation' 'boolean' 'suicidal_ideation' 0 'false'),
+            (Field 'suicidePlan' 'boolean' 'suicide_plan' 0 'false'),
+            (Field 'suicideIntent' 'boolean' 'suicide_intent' 0 'false'),
+            (Field 'selfHarm' 'boolean' 'self_harm' 0 'false'),
+            (Field 'harmToOthers' 'boolean' 'harm_to_others' 0 'false'),
+            (Field 'riskFactors' 'String' 'risk_factors' 0 '"No acute factors"' $null $null $false 'text'),
+            (Field 'protectiveFactors' 'String' 'protective_factors' 0 '"Family support"' $null $null $false 'text'),
+            (Field 'clinicalActions' 'String' 'clinical_actions' 0 '"Continue monitoring"' $null $null $false 'text'),
+            (Field 'observations' 'String' 'observations' 0 '"Stable"' $null $null $false 'text'),
+            (Field 'assessedAt' 'LocalDateTime' 'assessed_at' 0 'java.time.LocalDateTime.of(2026, 1, 10, 8, 0)'),
+            (Field 'assessedBy' 'ProfessionalId' 'assessed_by' 36 'ProfessionalId.generate()' 'professional' 'Professional')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'ClinicalNote'; Package = 'clinicalnote'; Table = 'clinical_notes'; Endpoint = 'clinical-notes'; HasTimestamps = $true
+        Fields = @(
+            (Field 'encounterId' 'EncounterId' 'encounter_id' 36 'EncounterId.generate()' 'encounter' 'Encounter'),
+            (Field 'professionalId' 'ProfessionalId' 'professional_id' 36 'ProfessionalId.generate()' 'professional' 'Professional'),
+            (Field 'subjective' 'String' 'subjective' 0 '"Patient report"' $null $null $false 'text'),
+            (Field 'objective' 'String' 'objective' 0 '"Clinical observation"' $null $null $false 'text'),
+            (Field 'assessment' 'String' 'assessment' 0 '"Clinical assessment"' $null $null $false 'text'),
+            (Field 'plan' 'String' 'plan' 0 '"Follow-up plan"' $null $null $false 'text'),
+            (Field 'additionalNotes' 'String' 'additional_notes' 0 '"No additional notes"' $null $null $false 'text'),
+            (Field 'signedAt' 'LocalDateTime' 'signed_at' 0 'java.time.LocalDateTime.of(2026, 1, 10, 9, 0)')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'MentalStatusExam'; Package = 'mentalstatusexam'; Table = 'mental_status_exams'; Endpoint = 'mental-status-exams'; HasTimestamps = $false; HasCreatedAt = $true; HasUpdatedAt = $false
+        Fields = @(
+            (Field 'encounterId' 'EncounterId' 'encounter_id' 36 'EncounterId.generate()' 'encounter' 'Encounter'),
+            (Field 'appearance' 'String' 'appearance' 0 '"Appropriate"' $null $null $false 'text'),
+            (Field 'behavior' 'String' 'behavior' 0 '"Cooperative"' $null $null $false 'text'),
+            (Field 'attitude' 'String' 'attitude' 0 '"Open"' $null $null $false 'text'),
+            (Field 'consciousness' 'String' 'consciousness' 0 '"Alert"' $null $null $false 'text'),
+            (Field 'orientation' 'String' 'orientation' 0 '"Oriented"' $null $null $false 'text'),
+            (Field 'attention' 'String' 'attention' 0 '"Sustained"' $null $null $false 'text'),
+            (Field 'memory' 'String' 'memory' 0 '"Intact"' $null $null $false 'text'),
+            (Field 'speech' 'String' 'speech' 0 '"Clear"' $null $null $false 'text'),
+            (Field 'mood' 'String' 'mood' 0 '"Stable"' $null $null $false 'text'),
+            (Field 'affect' 'String' 'affect' 0 '"Congruent"' $null $null $false 'text'),
+            (Field 'thoughtProcess' 'String' 'thought_process' 0 '"Logical"' $null $null $false 'text'),
+            (Field 'thoughtContent' 'String' 'thought_content' 0 '"Appropriate"' $null $null $false 'text'),
+            (Field 'perception' 'String' 'perception' 0 '"No alterations"' $null $null $false 'text'),
+            (Field 'judgment' 'String' 'judgment' 0 '"Preserved"' $null $null $false 'text'),
+            (Field 'insight' 'String' 'insight' 0 '"Present"' $null $null $false 'text'),
+            (Field 'psychomotorActivity' 'String' 'psychomotor_activity' 0 '"Normal"' $null $null $false 'text'),
+            (Field 'observations' 'String' 'observations' 0 '"No additional findings"' $null $null $false 'text'),
+            (Field 'createdBy' 'ProfessionalId' 'created_by' 36 'ProfessionalId.generate()' 'professional' 'Professional')
+        )
+    },
+    [pscustomobject]@{
+        Entity = 'TreatmentPlan'; Package = 'treatmentplan'; Table = 'treatment_plans'; Endpoint = 'treatment-plans'; HasTimestamps = $true
+        Fields = @(
+            (Field 'encounterId' 'EncounterId' 'encounter_id' 36 'EncounterId.generate()' 'encounter' 'Encounter'),
+            (Field 'professionalId' 'ProfessionalId' 'professional_id' 36 'ProfessionalId.generate()' 'professional' 'Professional'),
+            (Field 'title' 'String' 'title' 200 '"Initial treatment plan"'),
+            (Field 'description' 'String' 'description' 0 '"Treatment plan description"' $null $null $false 'text'),
+            (Field 'startDate' 'LocalDate' 'start_date' 0 'java.time.LocalDate.of(2026, 1, 10)'),
+            (Field 'endDate' 'LocalDate' 'end_date' 0 'java.time.LocalDate.of(2026, 6, 10)'),
+            (Field 'treatmentStatusId' 'TreatmentStatusId' 'treatment_status_id' 36 'TreatmentStatusId.generate()' 'treatmentstatus' 'TreatmentStatus')
+        )
     }
 )
 

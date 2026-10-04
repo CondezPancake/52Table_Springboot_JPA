@@ -13,7 +13,7 @@ Last updated: 2026-10-04 (America/Bogota)
 | 5 | clinical_record_statuses, encounter_types, encounter_modalities, encounter_statuses, risk_levels | Complete and verified |
 | 6 | treatment_statuses, treatment_goal_statuses, medication_routes, assessment_types, consent_types, diagnostic_systems | Complete and verified |
 | 7 | clinical_records, encounters | Complete and verified |
-| 8 | risk_assessments, clinical_notes, mental_status_exams, treatment_plans | Pending |
+| 8 | risk_assessments, clinical_notes, mental_status_exams, treatment_plans | Complete and verified |
 | 9 | treatment_goals, conversations_statuses, priorities, sender_types, message_types | Pending |
 | 10 | chat_conversations, chat_participants, chat_messages | Pending |
 | 11 | provider_models_ai, ai_models, chat_conversation_ai_settings, ai_runs_statuses | Pending |
@@ -30,7 +30,7 @@ Last updated: 2026-10-04 (America/Bogota)
 - Renamed the only boot class to `springboot.infrastructure.DemoApplication`, updated the infrastructure POM and VS Code launcher, and retained root package scanning.
 - Added the template's Spring configuration metadata, with matching environment-backed queue-delay and CORS properties but no queue behavior.
 - Restored `existsByCode` for the initial three contexts using their real JPA properties, without altering the non-unique SQL constraints.
-- Added `tools/structure-manifest.json` and `tools/verify-structure.ps1`; after block 7 the verifier passes for 29 contexts, 759 Java files, exact declaration types/packages, 7 beans per context, layer boundaries, SQL columns, lengths, nullability, UUID/TEXT/DATE/timestamp mappings, and 52 migration versions.
+- Added `tools/structure-manifest.json` and `tools/verify-structure.ps1`; after block 8 the verifier passes for 33 contexts, 863 Java files, exact declaration types/packages, 7 beans per context, layer boundaries, SQL columns, lengths, nullability, UUID/TEXT/DATE/timestamp mappings, and 52 migration versions.
 - Maven wrapper 3.3.4 verified with `JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot`; Maven 3.9.16 runs on Java 21.0.12.1.
 - Copied all 52 original migrations once into infrastructure. Source/destination SHA-256 comparison reports 52 matches and zero mismatches; there is no template Country migration.
 - Implemented full Country-pattern contexts for `countries`, `state_regions`, and `city_municipalities`: 9 application files, 6 domain files, 8 infrastructure files, one common domain exception, and 2 equivalent tests per context.
@@ -65,15 +65,20 @@ Last updated: 2026-10-04 (America/Bogota)
 - `ClinicalRecord` models `created_at` without inventing an `updated_at`; its technical creation timestamp is preserved during updates. The generator and verifier now support independent technical creation/update timestamp presence.
 - `Encounter.reasonForVisit` and `Encounter.currentCondition` are required explicit MySQL `TEXT` mappings. Its seven FK fields plus aggregate identifier use textual UUID persistence, and both technical timestamps are retained.
 - Neither block-7 table has a code column, so no `existsByCode` method was introduced.
+- Implemented complete Country-pattern contexts for V24, V25, V26, and V28: `RiskAssessment`, `ClinicalNote`, `MentalStatusExam`, and `TreatmentPlan`, each with 9 application files, 6 domain files, 8 infrastructure files, its domain common exception, and 2 equivalent test classes.
+- Verified block 8 against SQL: all FK values remain typed identifiers/`CHAR(36)` UUIDs, all required booleans and business timestamps are preserved, and the 27 declared `TEXT` columns are explicitly mapped without artificial lengths.
+- `RiskAssessment` correctly has no technical timestamps; `MentalStatusExam` has `createdAt` only; `ClinicalNote` and `TreatmentPlan` preserve both `createdAt` and `updatedAt`.
+- `TreatmentPlan.startDate` and `endDate` use `LocalDate`, while its title keeps `VARCHAR(200)` and description uses required MySQL `TEXT`.
+- None of the block-8 tables has a code column or UNIQUE constraint, so no code-existence query or uniqueness was invented.
 - Confirmed domain/application source contains no Spring, JPA, or Jakarta Validation imports. No legacy package, PostgreSQL setting, `create-drop`, TODO, or stub implementation remains in main source.
 - Confirmed the implementation plan has exactly 52 table mapping rows.
 
 ## Verification states
 
 - Compiled: yes. `mvnw.cmd clean verify` succeeded for the full four-project reactor with Maven 3.9.16 on JDK 21.0.12.1 and Java release 21.
-- Tests executed: yes. The block-7 clean verification ran 93 tests (35 domain and 58 application), with zero failures, errors, or skips.
+- Tests executed: yes. The block-8 clean verification ran 105 tests (39 domain and 66 application), with zero failures, errors, or skips.
 - Persistence verified: no. There is no `.env`, `DB_URL`, MySQL client, Docker command, or confirmed dedicated MySQL database in this environment. Flyway/Hibernate startup was intentionally not pointed at the default or an unknown shared database.
 
 ## Next action
 
-In the next requested implementation execution, begin block 8: `risk_assessments`, `clinical_notes`, `mental_status_exams`, and `treatment_plans`. Extend the manifest and run the structural verifier before `clean verify`.
+In the next requested implementation execution, begin block 9: `treatment_goals`, `conversations_statuses`, `priorities`, `sender_types`, and `message_types`. Extend the manifest and run the structural verifier before `clean verify`.

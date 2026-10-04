@@ -92,6 +92,9 @@ The ordering is dependency-driven, so migration numbers appear out of numerical 
 - V32/V33 required descriptions use explicit MySQL `TEXT`; V34 diagnostic-system version remains `VARCHAR(20)`. No artificial length, optionality, or name uniqueness is added.
 - V18 `clinical_records` has `created_at` but no `updated_at`; the domain, response, JPA entity, mapper, generator, and verifier model those technical timestamps independently. Its `creationDate`, `openedAt`, and `closedAt` remain required business `LocalDateTime` values.
 - V22 `encounters` retains all seven foreign keys as identifiers, required start/end times, two required `TEXT` fields, and both technical timestamps. Neither V18 nor V22 invents a code lookup or JPA relationship graph.
+- V24 `risk_assessments` has no technical timestamps and retains five required booleans, four required `TEXT` fields, its assessment timestamp, and three FK identifiers.
+- V25/V26 preserve all required clinical narrative fields as explicit MySQL `TEXT`. `ClinicalNote` has both technical timestamps; `MentalStatusExam` has only `created_at`, which remains immutable technical creation state in the aggregate.
+- V28 `treatment_plans` maps `start_date`/`end_date` as `LocalDate`, its title as `VARCHAR(200)`, description as `TEXT`, and all three FK columns as identifiers. V24–V26/V28 add no code lookup or undeclared uniqueness.
 - JPA UUIDs use Hibernate's character JDBC type plus explicit `CHAR(36)` column definitions; the template's unqualified UUID mapping is not compatible with the supplied MySQL DDL.
 - Request validation enforces SQL nullability and maximum lengths. It does not invent `NOT BLANK` semantics where SQL only declares `NOT NULL`.
 - Java version declarations are removed from child POMs and centralized at Java 21. Surefire is pinned because the BOM alone does not provide plugin management for the template's JUnit 5 tests.

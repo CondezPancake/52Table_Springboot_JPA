@@ -253,6 +253,37 @@
       "uuidColumns": ["id", "clinical_record_id", "professional_id", "encounter_type_id", "modality_id", "status_id", "created_by", "updated_by"],
       "textColumns": ["reason_for_visit", "current_condition"],
       "javaTypes": {"started_at": "LocalDateTime", "ended_at": "LocalDateTime"}
+    },
+    {
+      "table": "risk_assessments", "entity": "RiskAssessment", "package": "riskassessment", "endpoint": "/api/risk-assessments", "hasTimestamps": false,
+      "expectedColumns": ["id", "encounter_id", "risk_level_id", "suicidal_ideation", "suicide_plan", "suicide_intent", "self_harm", "harm_to_others", "risk_factors", "protective_factors", "clinical_actions", "observations", "assessed_at", "assessed_by"],
+      "lengths": {"id": 36, "encounter_id": 36, "risk_level_id": 36, "assessed_by": 36},
+      "uuidColumns": ["id", "encounter_id", "risk_level_id", "assessed_by"],
+      "textColumns": ["risk_factors", "protective_factors", "clinical_actions", "observations"],
+      "javaTypes": {"assessed_at": "LocalDateTime"}
+    },
+    {
+      "table": "clinical_notes", "entity": "ClinicalNote", "package": "clinicalnote", "endpoint": "/api/clinical-notes", "hasTimestamps": true,
+      "expectedColumns": ["id", "encounter_id", "professional_id", "subjective", "objective", "assessment", "plan", "additional_notes", "signed_at", "created_at", "updated_at"],
+      "lengths": {"id": 36, "encounter_id": 36, "professional_id": 36},
+      "uuidColumns": ["id", "encounter_id", "professional_id"],
+      "textColumns": ["subjective", "objective", "assessment", "plan", "additional_notes"],
+      "javaTypes": {"signed_at": "LocalDateTime"}
+    },
+    {
+      "table": "mental_status_exams", "entity": "MentalStatusExam", "package": "mentalstatusexam", "endpoint": "/api/mental-status-exams", "hasTimestamps": false, "hasCreatedAt": true, "hasUpdatedAt": false,
+      "expectedColumns": ["id", "encounter_id", "appearance", "behavior", "attitude", "consciousness", "orientation", "attention", "memory", "speech", "mood", "affect", "thought_process", "thought_content", "perception", "judgment", "insight", "psychomotor_activity", "observations", "created_at", "created_by"],
+      "lengths": {"id": 36, "encounter_id": 36, "created_by": 36},
+      "uuidColumns": ["id", "encounter_id", "created_by"],
+      "textColumns": ["appearance", "behavior", "attitude", "consciousness", "orientation", "attention", "memory", "speech", "mood", "affect", "thought_process", "thought_content", "perception", "judgment", "insight", "psychomotor_activity", "observations"]
+    },
+    {
+      "table": "treatment_plans", "entity": "TreatmentPlan", "package": "treatmentplan", "endpoint": "/api/treatment-plans", "hasTimestamps": true,
+      "expectedColumns": ["id", "encounter_id", "professional_id", "title", "description", "start_date", "end_date", "treatment_status_id", "created_at", "updated_at"],
+      "lengths": {"id": 36, "encounter_id": 36, "professional_id": 36, "title": 200, "treatment_status_id": 36},
+      "uuidColumns": ["id", "encounter_id", "professional_id", "treatment_status_id"],
+      "textColumns": ["description"],
+      "javaTypes": {"start_date": "LocalDate", "end_date": "LocalDate"}
     }
   ],
   "requiredResources": [
