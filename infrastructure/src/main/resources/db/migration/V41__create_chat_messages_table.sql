@@ -13,4 +13,4 @@ CREATE TABLE chat_messages (
         FOREIGN KEY (message_type_id) REFERENCES message_types (id),
     CONSTRAINT fk_chat_messages_participant
         FOREIGN KEY (participant_id) REFERENCES chat_participants (id)
-) ENGINE = InnoDB;
+);

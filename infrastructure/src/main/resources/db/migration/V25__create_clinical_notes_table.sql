@@ -15,4 +15,4 @@ CREATE TABLE clinical_notes (
         FOREIGN KEY (encounter_id) REFERENCES encounters (id),
     CONSTRAINT fk_clinical_notes_professional
         FOREIGN KEY (professional_id) REFERENCES professionals (id)
-) ENGINE = InnoDB;
+);

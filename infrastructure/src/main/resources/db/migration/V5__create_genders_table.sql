@@ -5,4 +5,4 @@ CREATE TABLE genders (
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_genders PRIMARY KEY (id),
     CONSTRAINT uk_genders_description UNIQUE (description)
-) ENGINE = InnoDB;
+);

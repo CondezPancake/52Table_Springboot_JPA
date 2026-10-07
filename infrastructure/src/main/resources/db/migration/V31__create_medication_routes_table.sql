@@ -7,4 +7,4 @@ CREATE TABLE medication_routes (
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_medication_routes PRIMARY KEY (id),
     CONSTRAINT uk_medication_routes_code UNIQUE (code)
-) ENGINE = InnoDB;
+);

@@ -8,4 +8,4 @@ CREATE TABLE countries (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_countries PRIMARY KEY (id)
-) ENGINE = InnoDB;
+);

@@ -10,4 +10,4 @@ CREATE TABLE chat_conversation_ai_settings (
         FOREIGN KEY (conversation_id) REFERENCES chat_conversations (id),
     CONSTRAINT fk_chat_conversation_ai_settings_model
         FOREIGN KEY (default_model_id) REFERENCES ai_models (id)
-) ENGINE = InnoDB;
+);

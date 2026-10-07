@@ -16,5 +16,5 @@ CREATE TABLE contacts (
         FOREIGN KEY (created_by) REFERENCES professionals (id),
     CONSTRAINT fk_contacts_updated_by
         FOREIGN KEY (updated_by) REFERENCES professionals (id)
-) ENGINE = InnoDB;
+);
 --

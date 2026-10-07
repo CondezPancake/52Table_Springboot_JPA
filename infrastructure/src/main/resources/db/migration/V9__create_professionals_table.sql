@@ -21,4 +21,4 @@ CREATE TABLE professionals (
         FOREIGN KEY (professional_type) REFERENCES professional_types (id),
     CONSTRAINT fk_professionals_city
         FOREIGN KEY (city_id) REFERENCES city_municipalities (id)
-) ENGINE = InnoDB;
+);

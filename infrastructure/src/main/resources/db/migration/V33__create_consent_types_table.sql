@@ -8,4 +8,4 @@ CREATE TABLE consent_types (
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_consent_types PRIMARY KEY (id),
     CONSTRAINT uk_consent_types_code UNIQUE (code)
-) ENGINE = InnoDB;
+);

@@ -8,4 +8,4 @@ CREATE TABLE chat_escalation_assignments (
         FOREIGN KEY (escalation_id) REFERENCES chat_escalations (id),
     CONSTRAINT fk_chat_escalation_assignments_professional
         FOREIGN KEY (professional_id) REFERENCES professionals (id)
-) ENGINE = InnoDB;
+);

@@ -20,4 +20,4 @@ CREATE TABLE risk_assessments (
         FOREIGN KEY (risk_level_id) REFERENCES risk_levels (id),
     CONSTRAINT fk_risk_assessments_assessed_by
         FOREIGN KEY (assessed_by) REFERENCES professionals (id)
-) ENGINE = InnoDB;
+);

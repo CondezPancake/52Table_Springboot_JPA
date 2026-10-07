@@ -16,5 +16,5 @@ CREATE TABLE professional_studies (
         FOREIGN KEY (professional_id) REFERENCES professionals (id),
     CONSTRAINT fk_professional_studies_country
         FOREIGN KEY (country_id) REFERENCES countries (id)
-) ENGINE = InnoDB;
+);
 --

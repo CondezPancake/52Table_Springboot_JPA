@@ -8,4 +8,4 @@ CREATE TABLE encounter_statuses (
     CONSTRAINT pk_encounter_statuses PRIMARY KEY (id),
     CONSTRAINT uk_encounter_statuses_code UNIQUE (code),
     CONSTRAINT uk_encounter_statuses_name UNIQUE (name)
-) ENGINE = InnoDB;
+);

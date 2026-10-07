@@ -10,4 +10,4 @@ CREATE TABLE state_regions (
     CONSTRAINT pk_state_regions PRIMARY KEY (id),
     CONSTRAINT fk_state_regions_country
         FOREIGN KEY (country_id) REFERENCES countries (id)
-) ENGINE = InnoDB;
+);

@@ -8,4 +8,4 @@ CREATE TABLE diagnostic_systems (
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_diagnostic_systems PRIMARY KEY (id),
     CONSTRAINT uk_diagnostic_systems_code UNIQUE (code)
-) ENGINE = InnoDB;
+);

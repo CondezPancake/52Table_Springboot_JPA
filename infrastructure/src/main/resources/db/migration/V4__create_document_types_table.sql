@@ -7,4 +7,4 @@ CREATE TABLE document_types (
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_document_types PRIMARY KEY (id),
     CONSTRAINT uk_document_types_code UNIQUE (code)
-) ENGINE = InnoDB;
+);

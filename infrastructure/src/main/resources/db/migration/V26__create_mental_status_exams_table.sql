@@ -25,4 +25,4 @@ CREATE TABLE mental_status_exams (
         FOREIGN KEY (encounter_id) REFERENCES encounters (id),
     CONSTRAINT fk_mental_status_exams_created_by
         FOREIGN KEY (created_by) REFERENCES professionals (id)
-) ENGINE = InnoDB;
+);

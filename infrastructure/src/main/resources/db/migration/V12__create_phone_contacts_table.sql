@@ -6,5 +6,5 @@ CREATE TABLE phone_contacts (
     CONSTRAINT pk_phone_contacts PRIMARY KEY (id),
     CONSTRAINT fk_phone_contacts_contact
         FOREIGN KEY (contact_id) REFERENCES contacts (id)
-) ENGINE = InnoDB;
+);
 --

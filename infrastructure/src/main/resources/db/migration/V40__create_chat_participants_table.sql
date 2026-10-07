@@ -15,4 +15,4 @@ CREATE TABLE chat_participants (
         FOREIGN KEY (patient_id) REFERENCES patients (id),
     CONSTRAINT fk_chat_participants_professional
         FOREIGN KEY (professional_id) REFERENCES professionals (id)
-) ENGINE = InnoDB;
+);

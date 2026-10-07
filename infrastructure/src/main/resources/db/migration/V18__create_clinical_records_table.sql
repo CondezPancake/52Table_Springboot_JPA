@@ -15,5 +15,5 @@ CREATE TABLE clinical_records (
         FOREIGN KEY (status_id) REFERENCES clinical_record_statuses (id),
     CONSTRAINT fk_clinical_records_created_by
         FOREIGN KEY (created_by) REFERENCES professionals (id)
-) ENGINE = InnoDB;
+);
 --

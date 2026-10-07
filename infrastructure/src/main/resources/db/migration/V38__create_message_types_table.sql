@@ -4,4 +4,4 @@ CREATE TABLE message_types (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_message_types PRIMARY KEY (id)
-) ENGINE = InnoDB;
+);

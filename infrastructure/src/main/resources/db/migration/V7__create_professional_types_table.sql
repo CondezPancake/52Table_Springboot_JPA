@@ -5,4 +5,4 @@ CREATE TABLE professional_types (
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_professional_types PRIMARY KEY (id),
     CONSTRAINT uk_professional_types_name UNIQUE (name)
-) ENGINE = InnoDB;
+);

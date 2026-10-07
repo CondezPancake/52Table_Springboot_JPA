@@ -13,4 +13,4 @@ CREATE TABLE treatment_goals (
         FOREIGN KEY (treatment_plan_id) REFERENCES treatment_plans (id),
     CONSTRAINT fk_treatment_goals_status
         FOREIGN KEY (treatment_goal_id) REFERENCES treatment_goal_statuses (id)
-) ENGINE = InnoDB;
+);

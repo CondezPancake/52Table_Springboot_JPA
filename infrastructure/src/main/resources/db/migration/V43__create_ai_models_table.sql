@@ -13,4 +13,4 @@ CREATE TABLE ai_models (
     CONSTRAINT pk_ai_models PRIMARY KEY (id),
     CONSTRAINT fk_ai_models_provider
         FOREIGN KEY (provider_model_id) REFERENCES provider_models_ai (id)
-) ENGINE = InnoDB;
+);

@@ -7,5 +7,5 @@ CREATE TABLE clinical_record_statuses (
     CONSTRAINT pk_clinical_record_statuses PRIMARY KEY (id),
     CONSTRAINT uk_clinical_record_statuses_code UNIQUE (code),
     CONSTRAINT uk_clinical_record_statuses_name UNIQUE (name)
-) ENGINE = InnoDB;
+);
 --

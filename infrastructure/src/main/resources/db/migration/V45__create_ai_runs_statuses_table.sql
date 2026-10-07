@@ -4,4 +4,4 @@ CREATE TABLE ai_runs_statuses (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_ai_runs_statuses PRIMARY KEY (id)
-) ENGINE = InnoDB;
+);

@@ -4,4 +4,4 @@ CREATE TABLE priorities (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_priorities PRIMARY KEY (id)
-) ENGINE = InnoDB;
+);

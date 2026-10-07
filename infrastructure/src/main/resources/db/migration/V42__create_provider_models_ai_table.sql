@@ -7,4 +7,4 @@ CREATE TABLE provider_models_ai (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_provider_models_ai PRIMARY KEY (id)
-) ENGINE = InnoDB;
+);

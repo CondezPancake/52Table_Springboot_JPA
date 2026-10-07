@@ -8,4 +8,4 @@ CREATE TABLE assessment_types (
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_assessment_types PRIMARY KEY (id),
     CONSTRAINT uk_assessment_types_code UNIQUE (code)
-) ENGINE = InnoDB;
+);

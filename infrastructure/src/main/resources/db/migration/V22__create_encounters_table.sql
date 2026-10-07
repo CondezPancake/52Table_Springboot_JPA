@@ -28,4 +28,4 @@ CREATE TABLE encounters (
         FOREIGN KEY (created_by) REFERENCES professionals (id),
     CONSTRAINT fk_encounters_updated_by
         FOREIGN KEY (updated_by) REFERENCES professionals (id)
-) ENGINE = InnoDB;
+);

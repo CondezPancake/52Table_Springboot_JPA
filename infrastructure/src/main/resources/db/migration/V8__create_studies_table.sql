@@ -4,4 +4,4 @@ CREATE TABLE studies (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_studies PRIMARY KEY (id)
-) ENGINE = InnoDB;
+);

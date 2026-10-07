@@ -12,5 +12,5 @@ CREATE TABLE patient_contacts (
         FOREIGN KEY (patient_id) REFERENCES patients (id),
     CONSTRAINT fk_patient_contacts_relationship_type
         FOREIGN KEY (relationship_type_id) REFERENCES relationship_types (id)
-) ENGINE = InnoDB;
+);
 --

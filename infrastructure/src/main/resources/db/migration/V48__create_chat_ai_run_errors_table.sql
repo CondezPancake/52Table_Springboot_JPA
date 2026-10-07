@@ -8,4 +8,4 @@ CREATE TABLE chat_ai_run_errors (
     CONSTRAINT pk_chat_ai_run_errors PRIMARY KEY (id),
     CONSTRAINT fk_chat_ai_run_errors_ai_run
         FOREIGN KEY (ai_run_id) REFERENCES chat_ai_runs (id)
-) ENGINE = InnoDB;
+);

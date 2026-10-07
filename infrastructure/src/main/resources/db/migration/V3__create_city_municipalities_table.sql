@@ -10,4 +10,4 @@ CREATE TABLE city_municipalities (
     CONSTRAINT pk_city_municipalities PRIMARY KEY (id),
     CONSTRAINT fk_city_municipalities_region
         FOREIGN KEY (region_id) REFERENCES state_regions (id)
-) ENGINE = InnoDB;
+);

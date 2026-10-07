@@ -4,4 +4,4 @@ CREATE TABLE conversations_statuses (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_conversations_statuses PRIMARY KEY (id)
-) ENGINE = InnoDB;
+);

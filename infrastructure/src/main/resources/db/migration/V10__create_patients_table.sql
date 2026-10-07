@@ -32,4 +32,4 @@ CREATE TABLE patients (
         FOREIGN KEY (updated_by) REFERENCES professionals (id),
     CONSTRAINT fk_patients_city
         FOREIGN KEY (city_id) REFERENCES city_municipalities (id)
-) ENGINE = InnoDB;
+);

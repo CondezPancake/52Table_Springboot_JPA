@@ -13,4 +13,4 @@ CREATE TABLE chat_conversations (
         FOREIGN KEY (conversation_status_id) REFERENCES conversations_statuses (id),
     CONSTRAINT fk_chat_conversations_priority
         FOREIGN KEY (priority_id) REFERENCES priorities (id)
-) ENGINE = InnoDB;
+);

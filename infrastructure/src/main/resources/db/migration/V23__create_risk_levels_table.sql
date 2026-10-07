@@ -9,4 +9,4 @@ CREATE TABLE risk_levels (
     CONSTRAINT pk_risk_levels PRIMARY KEY (id),
     CONSTRAINT uk_risk_levels_code UNIQUE (code),
     CONSTRAINT uk_risk_levels_name UNIQUE (name)
-) ENGINE = InnoDB;
+);

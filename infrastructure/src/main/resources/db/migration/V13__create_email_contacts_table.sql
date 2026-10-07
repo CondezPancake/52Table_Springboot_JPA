@@ -9,5 +9,5 @@ CREATE TABLE email_contacts (
     CONSTRAINT uk_email_contacts_email UNIQUE (email),
     CONSTRAINT fk_email_contacts_contact
         FOREIGN KEY (contact_id) REFERENCES contacts (id)
-) ENGINE = InnoDB;
+);
 --

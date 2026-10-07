@@ -9,4 +9,4 @@ CREATE TABLE chat_escalation_status_history (
         FOREIGN KEY (escalation_id) REFERENCES chat_escalations (id),
     CONSTRAINT fk_chat_escalation_status_history_status
         FOREIGN KEY (escalation_status_id) REFERENCES escalations_statuses (id)
-) ENGINE = InnoDB;
+);

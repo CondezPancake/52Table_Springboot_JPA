@@ -1,0 +1,9 @@
+CREATE TABLE auth_user_roles (
+    user_id CHAR(36) NOT NULL,
+    role_id CHAR(36) NOT NULL,
+    CONSTRAINT pk_auth_user_roles PRIMARY KEY (user_id, role_id),
+    CONSTRAINT fk_auth_user_roles_user
+        FOREIGN KEY (user_id) REFERENCES auth_users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_auth_user_roles_role
+        FOREIGN KEY (role_id) REFERENCES auth_roles (id)
+);

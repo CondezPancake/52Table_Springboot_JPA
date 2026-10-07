@@ -15,4 +15,4 @@ CREATE TABLE chat_ai_runs (
         FOREIGN KEY (model_id) REFERENCES ai_models (id),
     CONSTRAINT fk_chat_ai_runs_status
         FOREIGN KEY (ai_run_status_id) REFERENCES ai_runs_statuses (id)
-) ENGINE = InnoDB;
+);

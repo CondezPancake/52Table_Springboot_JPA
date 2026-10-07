@@ -8,5 +8,5 @@ CREATE TABLE encounter_modalities (
     CONSTRAINT pk_encounter_modalities PRIMARY KEY (id),
     CONSTRAINT uk_encounter_modalities_code UNIQUE (code),
     CONSTRAINT uk_encounter_modalities_name UNIQUE (name)
-) ENGINE = InnoDB;
+);
 --

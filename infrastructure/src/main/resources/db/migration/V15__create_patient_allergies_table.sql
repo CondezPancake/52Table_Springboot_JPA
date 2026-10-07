@@ -14,5 +14,5 @@ CREATE TABLE patient_allergies (
         FOREIGN KEY (patient_id) REFERENCES patients (id),
     CONSTRAINT fk_patient_allergies_recorded_by
         FOREIGN KEY (recorded_by) REFERENCES professionals (id)
-) ENGINE = InnoDB;
+);
 --

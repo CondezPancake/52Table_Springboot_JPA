@@ -4,4 +4,4 @@ CREATE TABLE sender_types (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_sender_types PRIMARY KEY (id)
-) ENGINE = InnoDB;
+);

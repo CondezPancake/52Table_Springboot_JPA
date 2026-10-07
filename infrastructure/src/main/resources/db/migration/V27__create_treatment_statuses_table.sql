@@ -8,4 +8,4 @@ CREATE TABLE treatment_statuses (
     CONSTRAINT pk_treatment_statuses PRIMARY KEY (id),
     CONSTRAINT uk_treatment_statuses_code UNIQUE (code),
     CONSTRAINT uk_treatment_statuses_name UNIQUE (name)
-) ENGINE = InnoDB;
+);
