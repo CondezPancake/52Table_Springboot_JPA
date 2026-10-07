@@ -6,4 +6,5 @@ import springboot.domain.security.model.AuthRole;
 
 public interface AuthRoleRepository {
     Optional<AuthRole> findByAuthority(String authority);
+    Optional<AuthRole> findByName(String name);
 }

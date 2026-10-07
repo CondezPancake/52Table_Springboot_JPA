@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import springboot.application.security.usecase.ChangePasswordUseCase;
+import springboot.application.security.usecase.AssignRoleUseCase;
 import springboot.application.security.usecase.GetCurrentUserUseCase;
 import springboot.application.security.usecase.LoginUseCase;
 import springboot.application.security.usecase.LogoutUseCase;
@@ -76,5 +77,10 @@ public class AuthBeansConfig {
     @Bean
     ChangePasswordUseCase changePasswordUseCase(AuthUserRepository users, PasswordService passwords) {
         return new ChangePasswordUseCase(users, passwords);
+    }
+
+    @Bean
+    AssignRoleUseCase assignRoleUseCase(AuthUserRepository users, AuthRoleRepository roles) {
+        return new AssignRoleUseCase(users, roles);
     }
 }

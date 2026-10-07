@@ -18,4 +18,9 @@ public class AuthRoleRepositoryAdapter implements AuthRoleRepository {
     public Optional<AuthRole> findByAuthority(String authority) {
         return repository.findByAuthorityIgnoreCase(authority).map(AuthPersistenceMapper::toDomain);
     }
+
+    @Override
+    public Optional<AuthRole> findByName(String name) {
+        return repository.findByNameIgnoreCase(name).map(AuthPersistenceMapper::toDomain);
+    }
 }

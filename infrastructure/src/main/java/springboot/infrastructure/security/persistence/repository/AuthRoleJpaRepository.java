@@ -9,4 +9,5 @@ import springboot.infrastructure.security.persistence.entity.AuthRoleJpaEntity;
 
 public interface AuthRoleJpaRepository extends JpaRepository<AuthRoleJpaEntity, UUID> {
     Optional<AuthRoleJpaEntity> findByAuthorityIgnoreCase(String authority);
+    Optional<AuthRoleJpaEntity> findByNameIgnoreCase(String name);
 }
